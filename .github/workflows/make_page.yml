@@ -22,10 +22,10 @@ jobs:
       run:  mkdir -p build
 
     - name: Clear build dir
-      run:  rm build/*
+      run:  rm -rf build
 
     - name: Run tera cli
-      run:  RUST_BACKTRACE=1 tera --template templates/index.tera --include empty.json >> build/index.html
+      run:  RUST_BACKTRACE=1 tera --template templates/index.tera --include empty.json > build/index.html
 
     - name: Copy public files to build dir
       run:  cp public/* build/
