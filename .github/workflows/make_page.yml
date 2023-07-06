@@ -19,7 +19,7 @@ jobs:
         tag: v0.2.4
 
     - name: Make build dir
-      run:  mkdir build
+      run:  mkdir -p build
 
     - name: Clear build dir
       run:  rm build/*
