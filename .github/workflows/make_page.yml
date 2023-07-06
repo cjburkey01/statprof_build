@@ -18,6 +18,12 @@ jobs:
         git: https://github.com/chevdor/tera-cli
         tag: v0.2.4
 
+    - name: Make build dir
+      run:  mkdir build
+
+    - name: Clear build dir
+      run:  rm build/*
+
     - name: Run tera cli
       run:  RUST_BACKTRACE=1 tera --template templates/index.tera --include empty.json >> build/index.html
 
