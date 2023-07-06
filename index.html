@@ -1,0 +1,2213 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>StatProf</title>
+
+<link rel="stylesheet" href="./normalize_8.0.1.css" />
+<link rel="stylesheet" href="./style.css" />
+    </head>
+    <body>
+        <!-- Behaviors -->
+        <script type="text/hyperscript">
+    behavior ZScoreTextUpdate
+        on keyup or input
+            set local mean to the value of #z_score_calc_mean
+            set local stdev to the value of #z_score_calc_stdev
+            set local x to the value of #z_score_calc_x
+            if has_val(mean) and has_val(stdev) and has_val(x)
+                set local z_score to z_score_fn(mean, stdev, x)
+                set #z_score_output's value to z_score.toFixed(6)
+            end
+        end
+    end
+
+    behavior NormCalcTextUpdate
+        on keyup or input
+            set local mean to the value of #norm_prob_calc_mean
+            set local stdev to the value of #norm_prob_calc_stdev
+            set local lt to the value of #norm_prob_calc_lt
+            set local gt to the value of #norm_prob_calc_gt
+
+            if has_val(mean) and has_val(stdev)
+                if has_val(lt) and has_val(gt)
+                    set local gt_prob to norm_prob_cdf_fn(mean, stdev, gt)
+                    set local lt_prob to norm_prob_cdf_fn(mean, stdev, lt)
+                    if gt <= lt
+                        -- If gt is less than lt, we want inner probability.
+                        set the value of #norm_prob_output
+                                to (lt_prob - gt_prob).toFixed(6)
+                    else
+                        -- Otherwise, we want outer probability.
+                        set the value of #norm_prob_output
+                                to (lt_prob + (1.0 - gt_prob)).toFixed(6)
+                    end
+                else if has_val(lt)
+                    set the value of #norm_prob_output
+                            to norm_prob_cdf_fn(mean, stdev, lt).toFixed(6)
+                else if has_val(gt)
+                    set the value of #norm_prob_output
+                            to (1 - norm_prob_cdf_fn(mean, stdev, gt)).toFixed(6)
+                end
+            end
+        end
+    end
+
+    behavior SampleNormCalcTextUpdate
+        on keyup or input
+            set local mean to the value of #sample_norm_prob_calc_mean
+            set local n to the value of #sample_norm_prob_calc_n
+            set local stdev to the value of #sample_norm_prob_calc_stdev / Math.sqrt(n)
+            set local lt to the value of #sample_norm_prob_calc_lt
+            set local gt to the value of #sample_norm_prob_calc_gt
+
+            if has_val(mean) and has_val(stdev) and has_val(n)
+                if has_val(lt) and has_val(gt)
+                    set local gt_prob to norm_prob_cdf_fn(mean, stdev, gt)
+                    set local lt_prob to norm_prob_cdf_fn(mean, stdev, lt)
+                    set the value of #sample_norm_prob_output
+                            to Math.abs(lt_prob - gt_prob).toFixed(6)
+                else if has_val(lt)
+                    set the value of #sample_norm_prob_output
+                            to norm_prob_cdf_fn(mean, stdev, lt).toFixed(6)
+                else if has_val(gt)
+                    set the value of #sample_norm_prob_output
+                            to (1.0 - norm_prob_cdf_fn(mean, stdev, gt)).toFixed(6)
+                end
+            end
+        end
+    end
+
+    behavior InvNormCalcTextUpdate
+        on keyup or input
+            set local mean to the value of #inv_norm_prob_calc_mean
+            set local stdev to the value of #inv_norm_prob_calc_stdev
+            set local p to the value of #inv_norm_prob_calc_p
+
+            set local p to Math.min(Math.max(p, 0.0), 1.0)
+
+            if has_val(mean) and has_val(stdev) and has_val(p)
+                set local lt to
+                    x_from_z(mean, stdev, inv_norm_cdf_fn(mean, stdev, p)) as Float
+                set local gt to
+                    x_from_z(mean, stdev, inv_norm_cdf_fn(mean, stdev, 1.0 - p)) as Float
+
+                set the value of #inv_norm_prob_lt to lt.toFixed(6)
+                set the value of #inv_norm_prob_gt to gt.toFixed(6)
+
+                set local half_p to (1.0 - p) / 2.0
+
+                set local btwn_gt to
+                    x_from_z(mean, stdev, inv_norm_cdf_fn(mean, stdev, half_p)) as Float
+                set local btwn_lt to
+                    x_from_z(mean, stdev, inv_norm_cdf_fn(mean, stdev, 1.0 - half_p)) as Float
+
+                set the value of #inv_norm_prob_btwn1 to btwn_gt.toFixed(6)
+                set the value of #inv_norm_prob_btwn2 to btwn_lt.toFixed(6)
+
+                set local half_p2 to p / 2.0
+
+                set local out_lt to
+                    x_from_z(mean, stdev, inv_norm_cdf_fn(mean, stdev, half_p2)) as Float
+                set local out_gt to
+                    x_from_z(mean, stdev, inv_norm_cdf_fn(mean, stdev, 1.0 - half_p2)) as Float
+
+                set the value of #inv_norm_prob_out1 to out_lt.toFixed(6)
+                set the value of #inv_norm_prob_out2 to out_gt.toFixed(6)
+            end
+        end
+    end
+
+    behavior InvNormCalcTextUpdate
+        on keyup or input
+            set local mean to the value of #inv_norm_prob_calc_mean
+            set local stdev to the value of #inv_norm_prob_calc_stdev
+            set local p to the value of #inv_norm_prob_calc_p
+
+            set local p to Math.min(Math.max(p, 0.0), 1.0)
+
+            if has_val(mean) and has_val(stdev) and has_val(p)
+                set local lt to
+                    x_from_z(mean, stdev, inv_norm_cdf_fn(mean, stdev, p)) as Float
+                set local gt to
+                    x_from_z(mean, stdev, inv_norm_cdf_fn(mean, stdev, 1.0 - p)) as Float
+
+                set the value of #inv_norm_prob_lt to lt.toFixed(6)
+                set the value of #inv_norm_prob_gt to gt.toFixed(6)
+
+                set local half_p to (1.0 - p) / 2.0
+
+                set local btwn_gt to
+                    x_from_z(mean, stdev, inv_norm_cdf_fn(mean, stdev, half_p)) as Float
+                set local btwn_lt to
+                    x_from_z(mean, stdev, inv_norm_cdf_fn(mean, stdev, 1.0 - half_p)) as Float
+
+                set the value of #inv_norm_prob_btwn1 to btwn_gt.toFixed(6)
+                set the value of #inv_norm_prob_btwn2 to btwn_lt.toFixed(6)
+
+                set local half_p2 to p / 2.0
+
+                set local out_lt to
+                    x_from_z(mean, stdev, inv_norm_cdf_fn(mean, stdev, half_p2)) as Float
+                set local out_gt to
+                    x_from_z(mean, stdev, inv_norm_cdf_fn(mean, stdev, 1.0 - half_p2)) as Float
+
+                set the value of #inv_norm_prob_out1 to out_lt.toFixed(6)
+                set the value of #inv_norm_prob_out2 to out_gt.toFixed(6)
+            end
+        end
+    end
+
+    behavior SampleInvNormCalcTextUpdate
+        on keyup or input
+
+        end
+    end
+
+    behavior InvNormCalcTextUpdate
+        on keyup or input
+            set local mean to the value of #inv_norm_prob_calc_mean
+            set local stdev to the value of #inv_norm_prob_calc_stdev
+            set local p to the value of #inv_norm_prob_calc_p
+
+            set local p to Math.min(Math.max(p, 0.0), 1.0)
+
+            if has_val(mean) and has_val(stdev) and has_val(p)
+                set local lt to
+                    x_from_z(mean, stdev, inv_norm_cdf_fn(mean, stdev, p)) as Float
+                set local gt to
+                    x_from_z(mean, stdev, inv_norm_cdf_fn(mean, stdev, 1.0 - p)) as Float
+
+                set the value of #inv_norm_prob_lt to lt.toFixed(6)
+                set the value of #inv_norm_prob_gt to gt.toFixed(6)
+
+                set local half_p to (1.0 - p) / 2.0
+
+                set local btwn_gt to
+                    x_from_z(mean, stdev, inv_norm_cdf_fn(mean, stdev, half_p)) as Float
+                set local btwn_lt to
+                    x_from_z(mean, stdev, inv_norm_cdf_fn(mean, stdev, 1.0 - half_p)) as Float
+
+                set the value of #inv_norm_prob_btwn1 to btwn_gt.toFixed(6)
+                set the value of #inv_norm_prob_btwn2 to btwn_lt.toFixed(6)
+
+                set local half_p2 to p / 2.0
+
+                set local out_lt to
+                    x_from_z(mean, stdev, inv_norm_cdf_fn(mean, stdev, half_p2)) as Float
+                set local out_gt to
+                    x_from_z(mean, stdev, inv_norm_cdf_fn(mean, stdev, 1.0 - half_p2)) as Float
+
+                set the value of #inv_norm_prob_out1 to out_lt.toFixed(6)
+                set the value of #inv_norm_prob_out2 to out_gt.toFixed(6)
+            end
+        end
+    end
+
+    behavior TScoreTextUpdate
+        on keyup or input
+            set local mean to the value of #t_score_calc_mean
+            set local stdev to the value of #t_score_calc_stdev
+            set local n to the value of #t_score_calc_n
+            set local n to Math.max(Math.floor(n), 1)
+            set local x to the value of #t_score_calc_x
+
+            if has_val(mean) and has_val(stdev) and has_val(n) and has_val(x)
+                set local t_score to t_score_fn(mean, stdev, n, x)
+                set #t_score_output's value to t_score.toFixed(6)
+            end
+        end
+    end
+
+    behavior TInvNormCalcTextUpdate
+        on keyup or input
+            set local n to the value of #t_inv_norm_prob_calc_n
+            set local p to the value of #t_inv_norm_prob_calc_p
+
+            set local n to Math.max(Math.floor(n), 2)
+            set local p to Math.min(Math.max(p, 0.0), 1.0)
+
+            if has_val(n) and has_val(p)
+                set local lt to
+                    inv_t_cdf_fn(n, p) as Float
+                set local gt to
+                    inv_t_cdf_fn(n, 1.0 - p) as Float
+
+                set the value of #t_inv_norm_prob_lt to lt.toFixed(6)
+                set the value of #t_inv_norm_prob_gt to gt.toFixed(6)
+
+                set local half_p to (1.0 - p) / 2.0
+
+                set local btwn_gt to inv_t_cdf_fn(n, half_p) as Float
+                set local btwn_lt to inv_t_cdf_fn(n, 1.0 - half_p) as Float
+
+                set the value of #t_inv_norm_prob_btwn1 to btwn_gt.toFixed(6)
+                set the value of #t_inv_norm_prob_btwn2 to btwn_lt.toFixed(6)
+
+                set local half_p2 to p / 2.0
+
+                set local out_lt to inv_t_cdf_fn(n, half_p2) as Float
+                set local out_gt to inv_t_cdf_fn(n, 1.0 - half_p2) as Float
+
+                set the value of #t_inv_norm_prob_out1 to out_lt.toFixed(6)
+                set the value of #t_inv_norm_prob_out2 to out_gt.toFixed(6)
+            end
+        end
+    end
+</script>
+
+        <div id="main_container">
+            <div id="title">
+                <h1>StatProf</h1>
+            </div>
+
+            <h2>Normal Distribution</h2>
+
+            <!-- Z-Score calculation -->
+<div id="z_score_calc">
+    <h3>Z-Score</h3>
+    <div class="wrapper" id="z_score_calc_wrapper">
+        <table>
+            <tbody>
+                <tr>
+                    <td>
+                        <label for="z_score_calc_mean">
+                            Mean (<code>&mu;</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="z_score_calc_mean"
+                               size="6"
+                               step="1.0"
+                               value="0.0"
+                               _="install ZScoreTextUpdate" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="z_score_calc_stdev">
+                            Standard Deviation (<code>&sigma;</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="z_score_calc_stdev"
+                               size="6"
+                               step="0.1"
+                               value="1.0"
+                               _="install ZScoreTextUpdate" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="z_score_calc_x">
+                            Value (<code>x</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="z_score_calc_x"
+                               size="6"
+                               step="0.5"
+                               value="0.0"
+                               _="install ZScoreTextUpdate" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="z_score_output">
+                            Z-Score:
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="z_score_output"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+            <!-- Normal probability -->
+<div id="norm_prob_calc">
+    <h3>Normal Cumulative Distribution Probability</h3>
+    <div class="wrapper" id="norm_prob_calc_wrapper">
+        <p>
+            Calculate the probability that a single random sample
+            is less than, greater than, or between <code>x</code>,
+            given a normal distribution with mean <code>&mu;</code>
+            and standard deviation <code>&sigma;</code>.
+        </p>
+        <p>
+            To determine what the probability from z-score inputs,
+            simply leave the mean <code>&mu;</code> at <code>0</code>
+            and the standard deviation <code>&sigma;</code> at
+            <code>1</code>.
+        </p>
+
+        <table>
+            <tbody>
+                <tr>
+                    <td>
+                        <label for="norm_prob_calc_mean">
+                            Mean (<code>&mu;</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="norm_prob_calc_mean"
+                               size="6"
+                               step="1.0"
+                               value="0.0"
+                               _="install NormCalcTextUpdate" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="norm_prob_calc_stdev">
+                            Standard Deviation (<code>&sigma;</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="norm_prob_calc_stdev"
+                               size="6"
+                               step="0.1"
+                               value="1.0"
+                               _="install NormCalcTextUpdate" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="norm_prob_calc_gt">
+                            x &gt;
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="norm_prob_calc_gt"
+                               size="6"
+                               step="0.5"
+                               _="install NormCalcTextUpdate" />
+                    </td>
+                    <td>(May be blank)</td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="norm_prob_calc_lt">
+                            x &lt;
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="norm_prob_calc_lt"
+                               size="6"
+                               step="0.5"
+                               _="install NormCalcTextUpdate" />
+                    </td>
+                    <td>(May be blank)</td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="norm_prob_output">
+                            Probability:
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="norm_prob_output"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+            <!-- Sample normal probability -->
+<div id="sample_norm_prob_calc">
+    <h3>Sample Normal Cumulative Distribution Probability</h3>
+    <div class="wrapper" id="sample_norm_prob_calc_wrapper">
+        <p>
+            Calculate the probability that a random sample of
+            size <code>n</code> will have mean <code>x&#x0304;</code>
+            less than, greater than, or between defined values,
+            given the population mean <code>&mu;</code> and sample
+            standard deviation <code>s</code>.
+        </p>
+
+        <table>
+            <tbody>
+                <tr>
+                    <td>
+                        <label for="sample_norm_prob_calc_mean">
+                            Mean (<code>&mu;</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="sample_norm_prob_calc_mean"
+                               size="6"
+                               step = "1"
+                               value="0.0"
+                               _="install SampleNormCalcTextUpdate" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="sample_norm_prob_calc_stdev">
+                            Standard Deviation (<code>s</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="sample_norm_prob_calc_stdev"
+                               size="6"
+                               step = "0.1"
+                               value="1.0"
+                               _="install SampleNormCalcTextUpdate" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="sample_norm_prob_calc_n">
+                            Sample Size (<code>n</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="sample_norm_prob_calc_n"
+                               size="6"
+                               min="1"
+                               _="install SampleNormCalcTextUpdate" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="sample_norm_prob_calc_gt">
+                            x &gt;
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="sample_norm_prob_calc_gt"
+                               size="6"
+                               step = "0.05"
+                               _="install SampleNormCalcTextUpdate" />
+                    </td>
+                    <td>(May be blank)</td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="sample_norm_prob_calc_lt">
+                            x &lt;
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="sample_norm_prob_calc_lt"
+                               size="6"
+                               step = "0.05"
+                               _="install SampleNormCalcTextUpdate" />
+                    </td>
+                    <td>(May be blank)</td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="sample_norm_prob_output">
+                            Probability:
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="sample_norm_prob_output"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+            <!-- Inverse Normal probability -->
+<div id="inv_norm_prob_calc">
+    <h3>Inverse Normal Cumulative Distribution Probability</h3>
+    <div class="wrapper" id="inv_norm_prob_calc_wrapper">
+        <p>
+            From a normal distribution with mean <code>&mu;</code>
+            and standard deviation <code>&sigma;</code>, calculate
+            which values a random sample might take with a given
+            probability <code>p</code>. Calculates which values a
+            sample has <code>p</code> likelihood of occurring below,
+            above, or between.
+        </p>
+        <p>
+            This calculator can be used to generate a confidence
+            interval. For example, to calculate the bounds of a
+            95% confidence interval, input <code>0.95</code> as
+            <code>p</code> (and provide the mean and standard
+            deviation, if needed), and observe the "x inside"
+            output values for the lower and upper bounds.
+        </p>
+        <p>
+            If you need a z-score output, keep the mean
+            <code>&mu;</code> at <code>0</code> and standard
+            deviation <code>&sigma;</code> at <code>1</code>.
+        </p>
+
+        <table>
+            <tbody>
+                <tr>
+                    <td>
+                        <label for="inv_norm_prob_calc_mean">
+                            Mean (<code>&mu;</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="inv_norm_prob_calc_mean"
+                               size="6"
+                               step = "1.0"
+                               value="0.0"
+                               _="install InvNormCalcTextUpdate" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="inv_norm_prob_calc_stdev">
+                            Standard Deviation (<code>&sigma;</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="inv_norm_prob_calc_stdev"
+                               size="6"
+                               step = "0.1"
+                               value="1.0"
+                               _="install InvNormCalcTextUpdate" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="inv_norm_prob_calc_p">
+                            Probability (<code>p</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="inv_norm_prob_calc_p"
+                               size="6"
+                               step="0.05"
+                               min="0.0"
+                               max="1.0"
+                               _="install InvNormCalcTextUpdate" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="inv_norm_prob_gt">
+                            x &gt;
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="inv_norm_prob_gt"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="inv_norm_prob_lt">
+                            x &lt;
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="inv_norm_prob_lt"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="inv_norm_prob_btwn1">
+                            x between
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="inv_norm_prob_btwn1"
+                               size="10"
+                               readonly />
+                    </td>
+                    <td style="text-align: center;">
+                        <label for="inv_norm_prob_btwn2">
+                            and
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="inv_norm_prob_btwn2"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="inv_norm_prob_out1">
+                            x outside
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="inv_norm_prob_out1"
+                               size="10"
+                               readonly />
+                    </td>
+                    <td style="text-align: center;">
+                        <label for="inv_norm_prob_out2">
+                            and
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="inv_norm_prob_out2"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+            <!-- Inverse Sample Normal probability -->
+<div id="sample_inv_norm_prob_calc">
+    <h3>Inverse Sample Normal Cumulative Distribution Probability</h3>
+    <div class="wrapper" id="sample_inv_norm_prob_calc_wrapper">
+        <p>
+            Same as the inverse normal cumulative distribution
+            calculator, but uses the sample standard deviation and
+            sample size to approximate the standard deviation of
+            the means of samples of the given size.
+        </p>
+
+        <table>
+            <tbody>
+                <tr>
+                    <td>
+                        <label for="sample_inv_norm_prob_calc_mean">
+                            Mean (<code>&mu;</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="sample_inv_norm_prob_calc_mean"
+                               size="6"
+                               step = "1.0"
+                               value="0.0"
+                               _="install SampleInvNormCalcTextUpdate" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="sample_inv_norm_prob_calc_stdev">
+                            Standard Deviation (<code>s</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="sample_inv_norm_prob_calc_stdev"
+                               size="6"
+                               step = "0.1"
+                               value="1.0"
+                               _="install SampleInvNormCalcTextUpdate" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="sample_inv_norm_prob_calc_n">
+                            Sample Size (<code>n</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="sample_inv_norm_prob_calc_n"
+                               size="6"
+                               step = "1"
+                               value="1"
+                               min="1"
+                               _="install SampleInvNormCalcTextUpdate" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="sample_inv_norm_prob_calc_p">
+                            Probability (<code>p</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="sample_inv_norm_prob_calc_p"
+                               size="6"
+                               step="0.05"
+                               min="0.0"
+                               max="1.0"
+                               _="install SampleInvNormCalcTextUpdate" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="sample_inv_norm_prob_gt">
+                            x &gt;
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="sample_inv_norm_prob_gt"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="sample_inv_norm_prob_lt">
+                            x &lt;
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="sample_inv_norm_prob_lt"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="sample_inv_norm_prob_btwn1">
+                            x between
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="sample_inv_norm_prob_btwn1"
+                               size="10"
+                               readonly />
+                    </td>
+                    <td style="text-align: center;">
+                        <label for="sample_inv_norm_prob_btwn2">
+                            and
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="sample_inv_norm_prob_btwn2"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="sample_inv_norm_prob_out1">
+                            x outside
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="sample_inv_norm_prob_out1"
+                               size="10"
+                               readonly />
+                    </td>
+                    <td style="text-align: center;">
+                        <label for="sample_inv_norm_prob_out2">
+                            and
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="sample_inv_norm_prob_out2"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+            <h2>Student T-Distribution</h2>
+
+            <!-- T-Score calculation -->
+<div id="t_score_calc">
+    <h3>T-Score</h3>
+    <div class="wrapper" id="t_score_calc_wrapper">
+        <table>
+            <tbody>
+                <tr>
+                    <td>
+                        <label for="t_score_calc_mean">
+                            Mean (<code>&mu;</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="t_score_calc_mean"
+                               size="6"
+                               step="1.0"
+                               value="0.0"
+                               _="install TScoreTextUpdate" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="t_score_calc_stdev">
+                            Standard Deviation (<code>s</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="t_score_calc_stdev"
+                               size="6"
+                               step="0.1"
+                               value="1.0"
+                               _="install TScoreTextUpdate" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="t_score_calc_n">
+                            Sample Size (<code>n</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="t_score_calc_n"
+                               size="6"
+                               step="1"
+                               value="1"
+                               min="1"
+                               _="install TScoreTextUpdate" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="t_score_calc_x">
+                            Sample Mean (<code>x&#x0304;</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="t_score_calc_x"
+                               size="6"
+                               step="0.5"
+                               value="0.0"
+                               _="install TScoreTextUpdate" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="t_score_output">
+                            T-Score:
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="t_score_output"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+            <!-- Inverse T-distribution probability -->
+<div id="t_inv_norm_prob_calc">
+    <h3>Inverse T-Distribution</h3>
+    <div class="wrapper" id="t_inv_norm_prob_calc_wrapper">
+        <p>
+            Use this to determine confidence intervals and t-scores
+            given a certain probability.
+        </p>
+
+        <table>
+            <tbody>
+                <tr>
+                    <td>
+                        <label for="t_inv_norm_prob_calc_n">
+                            Sample Size (<code>n</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="t_inv_norm_prob_calc_n"
+                               size="6"
+                               step="1"
+                               value="2"
+                               min="2"
+                               _="install TInvNormCalcTextUpdate" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="t_inv_norm_prob_calc_p">
+                            Probability (<code>p</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="t_inv_norm_prob_calc_p"
+                               size="6"
+                               step="0.05"
+                               min="0.0"
+                               max="1.0"
+                               _="install TInvNormCalcTextUpdate" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="t_inv_norm_prob_gt">
+                            x&#x0304; &gt;
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="t_inv_norm_prob_gt"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="t_inv_norm_prob_lt">
+                            x&#x0304; &lt;
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="t_inv_norm_prob_lt"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="t_inv_norm_prob_btwn1">
+                            x&#x0304; between
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="t_inv_norm_prob_btwn1"
+                               size="10"
+                               readonly />
+                    </td>
+                    <td style="text-align: center;">
+                        <label for="t_inv_norm_prob_btwn2">
+                            and
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="t_inv_norm_prob_btwn2"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="t_inv_norm_prob_out1">
+                            x&#x0304; outside
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="t_inv_norm_prob_out1"
+                               size="10"
+                               readonly />
+                    </td>
+                    <td style="text-align: center;">
+                        <label for="t_inv_norm_prob_out2">
+                            and
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="t_inv_norm_prob_out2"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+        </div>
+
+        <footer>
+            &copy 2023 CJ Burkey &verbar;
+            Source available on <a target="_blank"
+                                   title="View source on GitHub"
+                                   href="https://github.com/cjburkey01/statprof">
+                GitHub
+            </a>
+        </footer>
+
+        <!-- Helpers -->
+        <script type="text/hyperscript">
+    def has_val(input)
+        return input exists and input is not empty
+    end
+
+    def z_score_fn(mean, stdev, x)
+        return (x as Float - mean as Float) / stdev as Float
+    end
+
+    def t_score_fn(mean, stdev, n, x)
+        return (x as Float - mean as Float) / (stdev as Float / Math.sqrt(n))
+    end
+
+    def x_from_z(mean, stdev, z)
+        -- z=(x-mean)/stdev
+        -- z*stdev=(x-mean)
+        -- z*stdev+mean=x
+        return (mean as Float + (z as Float * stdev as Float))
+    end
+
+    def round(value, decimal_places)
+        set local factor to Math.pow(10, decimal_places)
+        return Math.round(value * factor) / factor
+    end
+
+    def norm_prob_cdf_fn(mean, stdev, x)
+        return jStat.normal.cdf(x, mean, stdev)
+    end
+
+    def inv_norm_cdf_fn(mean, stdev, p)
+        return jStat.normal.inv(p, mean, stdev)
+    end
+
+    def inv_t_cdf_fn(n, p)
+        return jStat.studentt.inv(p, n - 1)
+    end
+</script>
+
+        <!-- Stats helpers -->
+        <script src="./jstat_1.9.6.min.js"></script>
+        <!-- Hyperscript! :) -->
+        <script src="./hyperscript_0.9.9.js"></script>
+    </body>
+</html>
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>StatProf</title>
+
+<link rel="stylesheet" href="./normalize_8.0.1.css" />
+<link rel="stylesheet" href="./style.css" />
+        <!-- HI! -->
+    </head>
+    <body>
+        <!-- Behaviors -->
+        <script type="text/hyperscript">
+    behavior ZScoreTextUpdate
+        on keyup or input
+            set local mean to the value of #z_score_calc_mean
+            set local stdev to the value of #z_score_calc_stdev
+            set local x to the value of #z_score_calc_x
+            if has_val(mean) and has_val(stdev) and has_val(x)
+                set local z_score to z_score_fn(mean, stdev, x)
+                set #z_score_output's value to z_score.toFixed(6)
+            end
+        end
+    end
+
+    behavior NormCalcTextUpdate
+        on keyup or input
+            set local mean to the value of #norm_prob_calc_mean
+            set local stdev to the value of #norm_prob_calc_stdev
+            set local lt to the value of #norm_prob_calc_lt
+            set local gt to the value of #norm_prob_calc_gt
+
+            if has_val(mean) and has_val(stdev)
+                if has_val(lt) and has_val(gt)
+                    set local gt_prob to norm_prob_cdf_fn(mean, stdev, gt)
+                    set local lt_prob to norm_prob_cdf_fn(mean, stdev, lt)
+                    if gt <= lt
+                        -- If gt is less than lt, we want inner probability.
+                        set the value of #norm_prob_output
+                                to (lt_prob - gt_prob).toFixed(6)
+                    else
+                        -- Otherwise, we want outer probability.
+                        set the value of #norm_prob_output
+                                to (lt_prob + (1.0 - gt_prob)).toFixed(6)
+                    end
+                else if has_val(lt)
+                    set the value of #norm_prob_output
+                            to norm_prob_cdf_fn(mean, stdev, lt).toFixed(6)
+                else if has_val(gt)
+                    set the value of #norm_prob_output
+                            to (1 - norm_prob_cdf_fn(mean, stdev, gt)).toFixed(6)
+                end
+            end
+        end
+    end
+
+    behavior SampleNormCalcTextUpdate
+        on keyup or input
+            set local mean to the value of #sample_norm_prob_calc_mean
+            set local n to the value of #sample_norm_prob_calc_n
+            set local stdev to the value of #sample_norm_prob_calc_stdev / Math.sqrt(n)
+            set local lt to the value of #sample_norm_prob_calc_lt
+            set local gt to the value of #sample_norm_prob_calc_gt
+
+            if has_val(mean) and has_val(stdev) and has_val(n)
+                if has_val(lt) and has_val(gt)
+                    set local gt_prob to norm_prob_cdf_fn(mean, stdev, gt)
+                    set local lt_prob to norm_prob_cdf_fn(mean, stdev, lt)
+                    set the value of #sample_norm_prob_output
+                            to Math.abs(lt_prob - gt_prob).toFixed(6)
+                else if has_val(lt)
+                    set the value of #sample_norm_prob_output
+                            to norm_prob_cdf_fn(mean, stdev, lt).toFixed(6)
+                else if has_val(gt)
+                    set the value of #sample_norm_prob_output
+                            to (1.0 - norm_prob_cdf_fn(mean, stdev, gt)).toFixed(6)
+                end
+            end
+        end
+    end
+
+    behavior InvNormCalcTextUpdate
+        on keyup or input
+            set local mean to the value of #inv_norm_prob_calc_mean
+            set local stdev to the value of #inv_norm_prob_calc_stdev
+            set local p to the value of #inv_norm_prob_calc_p
+
+            set local p to Math.min(Math.max(p, 0.0), 1.0)
+
+            if has_val(mean) and has_val(stdev) and has_val(p)
+                set local lt to
+                    x_from_z(mean, stdev, inv_norm_cdf_fn(mean, stdev, p)) as Float
+                set local gt to
+                    x_from_z(mean, stdev, inv_norm_cdf_fn(mean, stdev, 1.0 - p)) as Float
+
+                set the value of #inv_norm_prob_lt to lt.toFixed(6)
+                set the value of #inv_norm_prob_gt to gt.toFixed(6)
+
+                set local half_p to (1.0 - p) / 2.0
+
+                set local btwn_gt to
+                    x_from_z(mean, stdev, inv_norm_cdf_fn(mean, stdev, half_p)) as Float
+                set local btwn_lt to
+                    x_from_z(mean, stdev, inv_norm_cdf_fn(mean, stdev, 1.0 - half_p)) as Float
+
+                set the value of #inv_norm_prob_btwn1 to btwn_gt.toFixed(6)
+                set the value of #inv_norm_prob_btwn2 to btwn_lt.toFixed(6)
+
+                set local half_p2 to p / 2.0
+
+                set local out_lt to
+                    x_from_z(mean, stdev, inv_norm_cdf_fn(mean, stdev, half_p2)) as Float
+                set local out_gt to
+                    x_from_z(mean, stdev, inv_norm_cdf_fn(mean, stdev, 1.0 - half_p2)) as Float
+
+                set the value of #inv_norm_prob_out1 to out_lt.toFixed(6)
+                set the value of #inv_norm_prob_out2 to out_gt.toFixed(6)
+            end
+        end
+    end
+
+    behavior InvNormCalcTextUpdate
+        on keyup or input
+            set local mean to the value of #inv_norm_prob_calc_mean
+            set local stdev to the value of #inv_norm_prob_calc_stdev
+            set local p to the value of #inv_norm_prob_calc_p
+
+            set local p to Math.min(Math.max(p, 0.0), 1.0)
+
+            if has_val(mean) and has_val(stdev) and has_val(p)
+                set local lt to
+                    x_from_z(mean, stdev, inv_norm_cdf_fn(mean, stdev, p)) as Float
+                set local gt to
+                    x_from_z(mean, stdev, inv_norm_cdf_fn(mean, stdev, 1.0 - p)) as Float
+
+                set the value of #inv_norm_prob_lt to lt.toFixed(6)
+                set the value of #inv_norm_prob_gt to gt.toFixed(6)
+
+                set local half_p to (1.0 - p) / 2.0
+
+                set local btwn_gt to
+                    x_from_z(mean, stdev, inv_norm_cdf_fn(mean, stdev, half_p)) as Float
+                set local btwn_lt to
+                    x_from_z(mean, stdev, inv_norm_cdf_fn(mean, stdev, 1.0 - half_p)) as Float
+
+                set the value of #inv_norm_prob_btwn1 to btwn_gt.toFixed(6)
+                set the value of #inv_norm_prob_btwn2 to btwn_lt.toFixed(6)
+
+                set local half_p2 to p / 2.0
+
+                set local out_lt to
+                    x_from_z(mean, stdev, inv_norm_cdf_fn(mean, stdev, half_p2)) as Float
+                set local out_gt to
+                    x_from_z(mean, stdev, inv_norm_cdf_fn(mean, stdev, 1.0 - half_p2)) as Float
+
+                set the value of #inv_norm_prob_out1 to out_lt.toFixed(6)
+                set the value of #inv_norm_prob_out2 to out_gt.toFixed(6)
+            end
+        end
+    end
+
+    behavior SampleInvNormCalcTextUpdate
+        on keyup or input
+
+        end
+    end
+
+    behavior InvNormCalcTextUpdate
+        on keyup or input
+            set local mean to the value of #inv_norm_prob_calc_mean
+            set local stdev to the value of #inv_norm_prob_calc_stdev
+            set local p to the value of #inv_norm_prob_calc_p
+
+            set local p to Math.min(Math.max(p, 0.0), 1.0)
+
+            if has_val(mean) and has_val(stdev) and has_val(p)
+                set local lt to
+                    x_from_z(mean, stdev, inv_norm_cdf_fn(mean, stdev, p)) as Float
+                set local gt to
+                    x_from_z(mean, stdev, inv_norm_cdf_fn(mean, stdev, 1.0 - p)) as Float
+
+                set the value of #inv_norm_prob_lt to lt.toFixed(6)
+                set the value of #inv_norm_prob_gt to gt.toFixed(6)
+
+                set local half_p to (1.0 - p) / 2.0
+
+                set local btwn_gt to
+                    x_from_z(mean, stdev, inv_norm_cdf_fn(mean, stdev, half_p)) as Float
+                set local btwn_lt to
+                    x_from_z(mean, stdev, inv_norm_cdf_fn(mean, stdev, 1.0 - half_p)) as Float
+
+                set the value of #inv_norm_prob_btwn1 to btwn_gt.toFixed(6)
+                set the value of #inv_norm_prob_btwn2 to btwn_lt.toFixed(6)
+
+                set local half_p2 to p / 2.0
+
+                set local out_lt to
+                    x_from_z(mean, stdev, inv_norm_cdf_fn(mean, stdev, half_p2)) as Float
+                set local out_gt to
+                    x_from_z(mean, stdev, inv_norm_cdf_fn(mean, stdev, 1.0 - half_p2)) as Float
+
+                set the value of #inv_norm_prob_out1 to out_lt.toFixed(6)
+                set the value of #inv_norm_prob_out2 to out_gt.toFixed(6)
+            end
+        end
+    end
+
+    behavior TScoreTextUpdate
+        on keyup or input
+            set local mean to the value of #t_score_calc_mean
+            set local stdev to the value of #t_score_calc_stdev
+            set local n to the value of #t_score_calc_n
+            set local n to Math.max(Math.floor(n), 1)
+            set local x to the value of #t_score_calc_x
+
+            if has_val(mean) and has_val(stdev) and has_val(n) and has_val(x)
+                set local t_score to t_score_fn(mean, stdev, n, x)
+                set #t_score_output's value to t_score.toFixed(6)
+            end
+        end
+    end
+
+    behavior TInvNormCalcTextUpdate
+        on keyup or input
+            set local n to the value of #t_inv_norm_prob_calc_n
+            set local p to the value of #t_inv_norm_prob_calc_p
+
+            set local n to Math.max(Math.floor(n), 2)
+            set local p to Math.min(Math.max(p, 0.0), 1.0)
+
+            if has_val(n) and has_val(p)
+                set local lt to
+                    inv_t_cdf_fn(n, p) as Float
+                set local gt to
+                    inv_t_cdf_fn(n, 1.0 - p) as Float
+
+                set the value of #t_inv_norm_prob_lt to lt.toFixed(6)
+                set the value of #t_inv_norm_prob_gt to gt.toFixed(6)
+
+                set local half_p to (1.0 - p) / 2.0
+
+                set local btwn_gt to inv_t_cdf_fn(n, half_p) as Float
+                set local btwn_lt to inv_t_cdf_fn(n, 1.0 - half_p) as Float
+
+                set the value of #t_inv_norm_prob_btwn1 to btwn_gt.toFixed(6)
+                set the value of #t_inv_norm_prob_btwn2 to btwn_lt.toFixed(6)
+
+                set local half_p2 to p / 2.0
+
+                set local out_lt to inv_t_cdf_fn(n, half_p2) as Float
+                set local out_gt to inv_t_cdf_fn(n, 1.0 - half_p2) as Float
+
+                set the value of #t_inv_norm_prob_out1 to out_lt.toFixed(6)
+                set the value of #t_inv_norm_prob_out2 to out_gt.toFixed(6)
+            end
+        end
+    end
+</script>
+
+        <div id="main_container">
+            <div id="title">
+                <h1>StatProf</h1>
+            </div>
+
+            <h2>Normal Distribution</h2>
+
+            <!-- Z-Score calculation -->
+<div id="z_score_calc">
+    <h3>Z-Score</h3>
+    <div class="wrapper" id="z_score_calc_wrapper">
+        <table>
+            <tbody>
+                <tr>
+                    <td>
+                        <label for="z_score_calc_mean">
+                            Mean (<code>&mu;</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="z_score_calc_mean"
+                               size="6"
+                               step="1.0"
+                               value="0.0"
+                               _="install ZScoreTextUpdate" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="z_score_calc_stdev">
+                            Standard Deviation (<code>&sigma;</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="z_score_calc_stdev"
+                               size="6"
+                               step="0.1"
+                               value="1.0"
+                               _="install ZScoreTextUpdate" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="z_score_calc_x">
+                            Value (<code>x</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="z_score_calc_x"
+                               size="6"
+                               step="0.5"
+                               value="0.0"
+                               _="install ZScoreTextUpdate" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="z_score_output">
+                            Z-Score:
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="z_score_output"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+            <!-- Normal probability -->
+<div id="norm_prob_calc">
+    <h3>Normal Cumulative Distribution Probability</h3>
+    <div class="wrapper" id="norm_prob_calc_wrapper">
+        <p>
+            Calculate the probability that a single random sample
+            is less than, greater than, or between <code>x</code>,
+            given a normal distribution with mean <code>&mu;</code>
+            and standard deviation <code>&sigma;</code>.
+        </p>
+        <p>
+            To determine what the probability from z-score inputs,
+            simply leave the mean <code>&mu;</code> at <code>0</code>
+            and the standard deviation <code>&sigma;</code> at
+            <code>1</code>.
+        </p>
+
+        <table>
+            <tbody>
+                <tr>
+                    <td>
+                        <label for="norm_prob_calc_mean">
+                            Mean (<code>&mu;</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="norm_prob_calc_mean"
+                               size="6"
+                               step="1.0"
+                               value="0.0"
+                               _="install NormCalcTextUpdate" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="norm_prob_calc_stdev">
+                            Standard Deviation (<code>&sigma;</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="norm_prob_calc_stdev"
+                               size="6"
+                               step="0.1"
+                               value="1.0"
+                               _="install NormCalcTextUpdate" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="norm_prob_calc_gt">
+                            x &gt;
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="norm_prob_calc_gt"
+                               size="6"
+                               step="0.5"
+                               _="install NormCalcTextUpdate" />
+                    </td>
+                    <td>(May be blank)</td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="norm_prob_calc_lt">
+                            x &lt;
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="norm_prob_calc_lt"
+                               size="6"
+                               step="0.5"
+                               _="install NormCalcTextUpdate" />
+                    </td>
+                    <td>(May be blank)</td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="norm_prob_output">
+                            Probability:
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="norm_prob_output"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+            <!-- Sample normal probability -->
+<div id="sample_norm_prob_calc">
+    <h3>Sample Normal Cumulative Distribution Probability</h3>
+    <div class="wrapper" id="sample_norm_prob_calc_wrapper">
+        <p>
+            Calculate the probability that a random sample of
+            size <code>n</code> will have mean <code>x&#x0304;</code>
+            less than, greater than, or between defined values,
+            given the population mean <code>&mu;</code> and sample
+            standard deviation <code>s</code>.
+        </p>
+
+        <table>
+            <tbody>
+                <tr>
+                    <td>
+                        <label for="sample_norm_prob_calc_mean">
+                            Mean (<code>&mu;</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="sample_norm_prob_calc_mean"
+                               size="6"
+                               step = "1"
+                               value="0.0"
+                               _="install SampleNormCalcTextUpdate" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="sample_norm_prob_calc_stdev">
+                            Standard Deviation (<code>s</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="sample_norm_prob_calc_stdev"
+                               size="6"
+                               step = "0.1"
+                               value="1.0"
+                               _="install SampleNormCalcTextUpdate" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="sample_norm_prob_calc_n">
+                            Sample Size (<code>n</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="sample_norm_prob_calc_n"
+                               size="6"
+                               min="1"
+                               _="install SampleNormCalcTextUpdate" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="sample_norm_prob_calc_gt">
+                            x &gt;
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="sample_norm_prob_calc_gt"
+                               size="6"
+                               step = "0.05"
+                               _="install SampleNormCalcTextUpdate" />
+                    </td>
+                    <td>(May be blank)</td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="sample_norm_prob_calc_lt">
+                            x &lt;
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="sample_norm_prob_calc_lt"
+                               size="6"
+                               step = "0.05"
+                               _="install SampleNormCalcTextUpdate" />
+                    </td>
+                    <td>(May be blank)</td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="sample_norm_prob_output">
+                            Probability:
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="sample_norm_prob_output"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+            <!-- Inverse Normal probability -->
+<div id="inv_norm_prob_calc">
+    <h3>Inverse Normal Cumulative Distribution Probability</h3>
+    <div class="wrapper" id="inv_norm_prob_calc_wrapper">
+        <p>
+            From a normal distribution with mean <code>&mu;</code>
+            and standard deviation <code>&sigma;</code>, calculate
+            which values a random sample might take with a given
+            probability <code>p</code>. Calculates which values a
+            sample has <code>p</code> likelihood of occurring below,
+            above, or between.
+        </p>
+        <p>
+            This calculator can be used to generate a confidence
+            interval. For example, to calculate the bounds of a
+            95% confidence interval, input <code>0.95</code> as
+            <code>p</code> (and provide the mean and standard
+            deviation, if needed), and observe the "x inside"
+            output values for the lower and upper bounds.
+        </p>
+        <p>
+            If you need a z-score output, keep the mean
+            <code>&mu;</code> at <code>0</code> and standard
+            deviation <code>&sigma;</code> at <code>1</code>.
+        </p>
+
+        <table>
+            <tbody>
+                <tr>
+                    <td>
+                        <label for="inv_norm_prob_calc_mean">
+                            Mean (<code>&mu;</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="inv_norm_prob_calc_mean"
+                               size="6"
+                               step = "1.0"
+                               value="0.0"
+                               _="install InvNormCalcTextUpdate" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="inv_norm_prob_calc_stdev">
+                            Standard Deviation (<code>&sigma;</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="inv_norm_prob_calc_stdev"
+                               size="6"
+                               step = "0.1"
+                               value="1.0"
+                               _="install InvNormCalcTextUpdate" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="inv_norm_prob_calc_p">
+                            Probability (<code>p</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="inv_norm_prob_calc_p"
+                               size="6"
+                               step="0.05"
+                               min="0.0"
+                               max="1.0"
+                               _="install InvNormCalcTextUpdate" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="inv_norm_prob_gt">
+                            x &gt;
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="inv_norm_prob_gt"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="inv_norm_prob_lt">
+                            x &lt;
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="inv_norm_prob_lt"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="inv_norm_prob_btwn1">
+                            x between
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="inv_norm_prob_btwn1"
+                               size="10"
+                               readonly />
+                    </td>
+                    <td style="text-align: center;">
+                        <label for="inv_norm_prob_btwn2">
+                            and
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="inv_norm_prob_btwn2"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="inv_norm_prob_out1">
+                            x outside
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="inv_norm_prob_out1"
+                               size="10"
+                               readonly />
+                    </td>
+                    <td style="text-align: center;">
+                        <label for="inv_norm_prob_out2">
+                            and
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="inv_norm_prob_out2"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+            <!-- Inverse Sample Normal probability -->
+<div id="sample_inv_norm_prob_calc">
+    <h3>Inverse Sample Normal Cumulative Distribution Probability</h3>
+    <div class="wrapper" id="sample_inv_norm_prob_calc_wrapper">
+        <p>
+            Same as the inverse normal cumulative distribution
+            calculator, but uses the sample standard deviation and
+            sample size to approximate the standard deviation of
+            the means of samples of the given size.
+        </p>
+
+        <table>
+            <tbody>
+                <tr>
+                    <td>
+                        <label for="sample_inv_norm_prob_calc_mean">
+                            Mean (<code>&mu;</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="sample_inv_norm_prob_calc_mean"
+                               size="6"
+                               step = "1.0"
+                               value="0.0"
+                               _="install SampleInvNormCalcTextUpdate" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="sample_inv_norm_prob_calc_stdev">
+                            Standard Deviation (<code>s</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="sample_inv_norm_prob_calc_stdev"
+                               size="6"
+                               step = "0.1"
+                               value="1.0"
+                               _="install SampleInvNormCalcTextUpdate" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="sample_inv_norm_prob_calc_n">
+                            Sample Size (<code>n</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="sample_inv_norm_prob_calc_n"
+                               size="6"
+                               step = "1"
+                               value="1"
+                               min="1"
+                               _="install SampleInvNormCalcTextUpdate" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="sample_inv_norm_prob_calc_p">
+                            Probability (<code>p</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="sample_inv_norm_prob_calc_p"
+                               size="6"
+                               step="0.05"
+                               min="0.0"
+                               max="1.0"
+                               _="install SampleInvNormCalcTextUpdate" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="sample_inv_norm_prob_gt">
+                            x &gt;
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="sample_inv_norm_prob_gt"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="sample_inv_norm_prob_lt">
+                            x &lt;
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="sample_inv_norm_prob_lt"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="sample_inv_norm_prob_btwn1">
+                            x between
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="sample_inv_norm_prob_btwn1"
+                               size="10"
+                               readonly />
+                    </td>
+                    <td style="text-align: center;">
+                        <label for="sample_inv_norm_prob_btwn2">
+                            and
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="sample_inv_norm_prob_btwn2"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="sample_inv_norm_prob_out1">
+                            x outside
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="sample_inv_norm_prob_out1"
+                               size="10"
+                               readonly />
+                    </td>
+                    <td style="text-align: center;">
+                        <label for="sample_inv_norm_prob_out2">
+                            and
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="sample_inv_norm_prob_out2"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+            <h2>Student T-Distribution</h2>
+
+            <!-- T-Score calculation -->
+<div id="t_score_calc">
+    <h3>T-Score</h3>
+    <div class="wrapper" id="t_score_calc_wrapper">
+        <table>
+            <tbody>
+                <tr>
+                    <td>
+                        <label for="t_score_calc_mean">
+                            Mean (<code>&mu;</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="t_score_calc_mean"
+                               size="6"
+                               step="1.0"
+                               value="0.0"
+                               _="install TScoreTextUpdate" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="t_score_calc_stdev">
+                            Standard Deviation (<code>s</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="t_score_calc_stdev"
+                               size="6"
+                               step="0.1"
+                               value="1.0"
+                               _="install TScoreTextUpdate" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="t_score_calc_n">
+                            Sample Size (<code>n</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="t_score_calc_n"
+                               size="6"
+                               step="1"
+                               value="1"
+                               min="1"
+                               _="install TScoreTextUpdate" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="t_score_calc_x">
+                            Sample Mean (<code>x&#x0304;</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="t_score_calc_x"
+                               size="6"
+                               step="0.5"
+                               value="0.0"
+                               _="install TScoreTextUpdate" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="t_score_output">
+                            T-Score:
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="t_score_output"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+            <!-- Inverse T-distribution probability -->
+<div id="t_inv_norm_prob_calc">
+    <h3>Inverse T-Distribution</h3>
+    <div class="wrapper" id="t_inv_norm_prob_calc_wrapper">
+        <p>
+            Use this to determine confidence intervals and t-scores
+            given a certain probability.
+        </p>
+
+        <table>
+            <tbody>
+                <tr>
+                    <td>
+                        <label for="t_inv_norm_prob_calc_n">
+                            Sample Size (<code>n</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="t_inv_norm_prob_calc_n"
+                               size="6"
+                               step="1"
+                               value="2"
+                               min="2"
+                               _="install TInvNormCalcTextUpdate" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="t_inv_norm_prob_calc_p">
+                            Probability (<code>p</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="t_inv_norm_prob_calc_p"
+                               size="6"
+                               step="0.05"
+                               min="0.0"
+                               max="1.0"
+                               _="install TInvNormCalcTextUpdate" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="t_inv_norm_prob_gt">
+                            x&#x0304; &gt;
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="t_inv_norm_prob_gt"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="t_inv_norm_prob_lt">
+                            x&#x0304; &lt;
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="t_inv_norm_prob_lt"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="t_inv_norm_prob_btwn1">
+                            x&#x0304; between
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="t_inv_norm_prob_btwn1"
+                               size="10"
+                               readonly />
+                    </td>
+                    <td style="text-align: center;">
+                        <label for="t_inv_norm_prob_btwn2">
+                            and
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="t_inv_norm_prob_btwn2"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="t_inv_norm_prob_out1">
+                            x&#x0304; outside
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="t_inv_norm_prob_out1"
+                               size="10"
+                               readonly />
+                    </td>
+                    <td style="text-align: center;">
+                        <label for="t_inv_norm_prob_out2">
+                            and
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="t_inv_norm_prob_out2"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+        </div>
+
+        <footer>
+            &copy 2023 CJ Burkey &verbar;
+            Source available on <a target="_blank"
+                                   title="View source on GitHub"
+                                   href="https://github.com/cjburkey01/statprof">
+                GitHub
+            </a>
+        </footer>
+
+        <!-- Helpers -->
+        <script type="text/hyperscript">
+    def has_val(input)
+        return input exists and input is not empty
+    end
+
+    def z_score_fn(mean, stdev, x)
+        return (x as Float - mean as Float) / stdev as Float
+    end
+
+    def t_score_fn(mean, stdev, n, x)
+        return (x as Float - mean as Float) / (stdev as Float / Math.sqrt(n))
+    end
+
+    def x_from_z(mean, stdev, z)
+        -- z=(x-mean)/stdev
+        -- z*stdev=(x-mean)
+        -- z*stdev+mean=x
+        return (mean as Float + (z as Float * stdev as Float))
+    end
+
+    def round(value, decimal_places)
+        set local factor to Math.pow(10, decimal_places)
+        return Math.round(value * factor) / factor
+    end
+
+    def norm_prob_cdf_fn(mean, stdev, x)
+        return jStat.normal.cdf(x, mean, stdev)
+    end
+
+    def inv_norm_cdf_fn(mean, stdev, p)
+        return jStat.normal.inv(p, mean, stdev)
+    end
+
+    def inv_t_cdf_fn(n, p)
+        return jStat.studentt.inv(p, n - 1)
+    end
+</script>
+
+        <!-- Stats helpers -->
+        <script src="./jstat_1.9.6.min.js"></script>
+        <!-- Hyperscript! :) -->
+        <script src="./hyperscript_0.9.9.js"></script>
+    </body>
+</html>
+
