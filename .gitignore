@@ -1,3 +1,6 @@
+# Output
+build/
+
 # Mac
 **.DS_Store
 **/__MACOSX
