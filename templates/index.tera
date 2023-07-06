@@ -2,6 +2,7 @@
 <html lang="en">
     <head>
         {% include "head.tera" %}
+        <!-- HI! -->
     </head>
     <body>
         <!-- Behaviors -->
