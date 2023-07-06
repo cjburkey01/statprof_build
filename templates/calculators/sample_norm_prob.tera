@@ -1,0 +1,105 @@
+<!-- Sample normal probability -->
+<div id="sample_norm_prob_calc">
+    <h3>Sample Normal Cumulative Distribution Probability</h3>
+    <div class="wrapper" id="sample_norm_prob_calc_wrapper">
+        <p>
+            Calculate the probability that a random sample of
+            size <code>n</code> will have mean <code>x&#x0304;</code>
+            less than, greater than, or between defined values,
+            given the population mean <code>&mu;</code> and sample
+            standard deviation <code>s</code>.
+        </p>
+
+        <table>
+            <tbody>
+                <tr>
+                    <td>
+                        <label for="sample_norm_prob_calc_mean">
+                            Mean (<code>&mu;</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="sample_norm_prob_calc_mean"
+                               size="6"
+                               step = "1"
+                               value="0.0"
+                               _="install SampleNormCalcTextUpdate" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="sample_norm_prob_calc_stdev">
+                            Standard Deviation (<code>s</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="sample_norm_prob_calc_stdev"
+                               size="6"
+                               step = "0.1"
+                               value="1.0"
+                               _="install SampleNormCalcTextUpdate" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="sample_norm_prob_calc_n">
+                            Sample Size (<code>n</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="sample_norm_prob_calc_n"
+                               size="6"
+                               min="1"
+                               _="install SampleNormCalcTextUpdate" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="sample_norm_prob_calc_gt">
+                            x &gt;
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="sample_norm_prob_calc_gt"
+                               size="6"
+                               step = "0.05"
+                               _="install SampleNormCalcTextUpdate" />
+                    </td>
+                    <td>(May be blank)</td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="sample_norm_prob_calc_lt">
+                            x &lt;
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="sample_norm_prob_calc_lt"
+                               size="6"
+                               step = "0.05"
+                               _="install SampleNormCalcTextUpdate" />
+                    </td>
+                    <td>(May be blank)</td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="sample_norm_prob_output">
+                            Probability:
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="sample_norm_prob_output"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

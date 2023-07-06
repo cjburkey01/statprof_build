@@ -1,0 +1,37 @@
+<script type="text/hyperscript">
+    def has_val(input)
+        return input exists and input is not empty
+    end
+
+    def z_score_fn(mean, stdev, x)
+        return (x as Float - mean as Float) / stdev as Float
+    end
+
+    def t_score_fn(mean, stdev, n, x)
+        return (x as Float - mean as Float) / (stdev as Float / Math.sqrt(n))
+    end
+
+    def x_from_z(mean, stdev, z)
+        -- z=(x-mean)/stdev
+        -- z*stdev=(x-mean)
+        -- z*stdev+mean=x
+        return (mean as Float + (z as Float * stdev as Float))
+    end
+
+    def round(value, decimal_places)
+        set local factor to Math.pow(10, decimal_places)
+        return Math.round(value * factor) / factor
+    end
+
+    def norm_prob_cdf_fn(mean, stdev, x)
+        return jStat.normal.cdf(x, mean, stdev)
+    end
+
+    def inv_norm_cdf_fn(mean, stdev, p)
+        return jStat.normal.inv(p, mean, stdev)
+    end
+
+    def inv_t_cdf_fn(n, p)
+        return jStat.studentt.inv(p, n - 1)
+    end
+</script>

@@ -1,0 +1,152 @@
+<!-- Inverse Normal probability -->
+<div id="inv_norm_prob_calc">
+    <h3>Inverse Normal Cumulative Distribution Probability</h3>
+    <div class="wrapper" id="inv_norm_prob_calc_wrapper">
+        <p>
+            From a normal distribution with mean <code>&mu;</code>
+            and standard deviation <code>&sigma;</code>, calculate
+            which values a random sample might take with a given
+            probability <code>p</code>. Calculates which values a
+            sample has <code>p</code> likelihood of occurring below,
+            above, or between.
+        </p>
+        <p>
+            This calculator can be used to generate a confidence
+            interval. For example, to calculate the bounds of a
+            95% confidence interval, input <code>0.95</code> as
+            <code>p</code> (and provide the mean and standard
+            deviation, if needed), and observe the "x inside"
+            output values for the lower and upper bounds.
+        </p>
+        <p>
+            If you need a z-score output, keep the mean
+            <code>&mu;</code> at <code>0</code> and standard
+            deviation <code>&sigma;</code> at <code>1</code>.
+        </p>
+
+        <table>
+            <tbody>
+                <tr>
+                    <td>
+                        <label for="inv_norm_prob_calc_mean">
+                            Mean (<code>&mu;</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="inv_norm_prob_calc_mean"
+                               size="6"
+                               step = "1.0"
+                               value="0.0"
+                               _="install InvNormCalcTextUpdate" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="inv_norm_prob_calc_stdev">
+                            Standard Deviation (<code>&sigma;</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="inv_norm_prob_calc_stdev"
+                               size="6"
+                               step = "0.1"
+                               value="1.0"
+                               _="install InvNormCalcTextUpdate" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="inv_norm_prob_calc_p">
+                            Probability (<code>p</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="inv_norm_prob_calc_p"
+                               size="6"
+                               step="0.05"
+                               min="0.0"
+                               max="1.0"
+                               _="install InvNormCalcTextUpdate" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="inv_norm_prob_gt">
+                            x &gt;
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="inv_norm_prob_gt"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="inv_norm_prob_lt">
+                            x &lt;
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="inv_norm_prob_lt"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="inv_norm_prob_btwn1">
+                            x between
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="inv_norm_prob_btwn1"
+                               size="10"
+                               readonly />
+                    </td>
+                    <td style="text-align: center;">
+                        <label for="inv_norm_prob_btwn2">
+                            and
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="inv_norm_prob_btwn2"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="inv_norm_prob_out1">
+                            x outside
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="inv_norm_prob_out1"
+                               size="10"
+                               readonly />
+                    </td>
+                    <td style="text-align: center;">
+                        <label for="inv_norm_prob_out2">
+                            and
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="inv_norm_prob_out2"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

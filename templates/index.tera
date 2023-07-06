@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        {% include "head.tera" %}
+    </head>
+    <body>
+        <!-- Behaviors -->
+        {% include "behaviors.tera" %}
+
+        <div id="main_container">
+            <div id="title">
+                <h1>StatProf</h1>
+            </div>
+
+            <h2>Normal Distribution</h2>
+
+            {% include "calculators/z_score.tera" %}
+            {% include "calculators/norm_prob.tera" %}
+            {% include "calculators/sample_norm_prob.tera" %}
+            {% include "calculators/inv_norm_prob.tera" %}
+            {% include "calculators/inv_sample_norm_prob.tera" %}
+
+            <h2>Student T-Distribution</h2>
+
+            {% include "calculators/t_score.tera" %}
+            {% include "calculators/t_norm_prob.tera" %}
+        </div>
+
+        <footer>
+            &copy 2023 CJ Burkey &verbar;
+            Source available on <a target="_blank"
+                                   title="View source on GitHub"
+                                   href="https://github.com/cjburkey01/statprof">
+                GitHub
+            </a>
+        </footer>
+
+        <!-- Helpers -->
+        {% include "helpers.tera" %}
+
+        <!-- Stats helpers -->
+        <script src="./jstat_1.9.6.min.js"></script>
+        <!-- Hyperscript! :) -->
+        <script src="./hyperscript_0.9.9.js"></script>
+    </body>
+</html>
