@@ -14,7 +14,7 @@ jobs:
     - name: Install tera-cli from git
       uses: baptiste0928/cargo-install@v2
       with:
-        crate: tera-cli
+        crate: teracli
         git: https://github.com/chevdor/tera-cli
         tag: v0.2.4
 
