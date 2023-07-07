@@ -18,9 +18,10 @@
             set local mean to the value of #z_score_calc_mean
             set local stdev to the value of #z_score_calc_stdev
             set local x to the value of #z_score_calc_x
+
             if has_val(mean) and has_val(stdev) and has_val(x)
                 set local z_score to z_score_fn(mean, stdev, x)
-                set #z_score_output's value to z_score.toFixed(6)
+                set the value of #z_score_output to z_score.toFixed(6)
             end
         end
     end
@@ -36,6 +37,7 @@
                 if has_val(lt) and has_val(gt)
                     set local gt_prob to norm_prob_cdf_fn(mean, stdev, gt)
                     set local lt_prob to norm_prob_cdf_fn(mean, stdev, lt)
+
                     if gt <= lt
                         -- If gt is less than lt, we want inner probability.
                         set the value of #norm_prob_output
@@ -59,10 +61,13 @@
     behavior SampleNormCalcTextUpdate
         on keyup or input
             set local mean to the value of #sample_norm_prob_calc_mean
+            set local stdev to the value of #sample_norm_prob_calc_stdev
             set local n to the value of #sample_norm_prob_calc_n
-            set local stdev to the value of #sample_norm_prob_calc_stdev / Math.sqrt(n)
             set local lt to the value of #sample_norm_prob_calc_lt
             set local gt to the value of #sample_norm_prob_calc_gt
+
+            set local stdev to stdev / Math.sqrt(n)
+            set local n to Math.max(Math.floor(n), 1)
 
             if has_val(mean) and has_val(stdev) and has_val(n)
                 if has_val(lt) and has_val(gt)
@@ -163,16 +168,13 @@
 
     behavior SampleInvNormCalcTextUpdate
         on keyup or input
+            set local mean to the value of #sample_inv_norm_prob_calc_mean
+            set local stdev to the value of #sample_inv_norm_prob_calc_stdev
+            set local n to the value of #sample_inv_norm_prob_calc_n
+            set local p to the value of #sample_inv_norm_prob_calc_p
 
-        end
-    end
-
-    behavior InvNormCalcTextUpdate
-        on keyup or input
-            set local mean to the value of #inv_norm_prob_calc_mean
-            set local stdev to the value of #inv_norm_prob_calc_stdev
-            set local p to the value of #inv_norm_prob_calc_p
-
+            set local stdev to stdev / Math.sqrt(n)
+            set local n to Math.max(Math.floor(n), 1)
             set local p to Math.min(Math.max(p, 0.0), 1.0)
 
             if has_val(mean) and has_val(stdev) and has_val(p)
@@ -181,8 +183,8 @@
                 set local gt to
                     x_from_z(mean, stdev, inv_norm_cdf_fn(mean, stdev, 1.0 - p)) as Float
 
-                set the value of #inv_norm_prob_lt to lt.toFixed(6)
-                set the value of #inv_norm_prob_gt to gt.toFixed(6)
+                set the value of #sample_inv_norm_prob_lt to lt.toFixed(6)
+                set the value of #sample_inv_norm_prob_gt to gt.toFixed(6)
 
                 set local half_p to (1.0 - p) / 2.0
 
@@ -191,8 +193,8 @@
                 set local btwn_lt to
                     x_from_z(mean, stdev, inv_norm_cdf_fn(mean, stdev, 1.0 - half_p)) as Float
 
-                set the value of #inv_norm_prob_btwn1 to btwn_gt.toFixed(6)
-                set the value of #inv_norm_prob_btwn2 to btwn_lt.toFixed(6)
+                set the value of #sample_inv_norm_prob_btwn1 to btwn_gt.toFixed(6)
+                set the value of #sample_inv_norm_prob_btwn2 to btwn_lt.toFixed(6)
 
                 set local half_p2 to p / 2.0
 
@@ -201,8 +203,8 @@
                 set local out_gt to
                     x_from_z(mean, stdev, inv_norm_cdf_fn(mean, stdev, 1.0 - half_p2)) as Float
 
-                set the value of #inv_norm_prob_out1 to out_lt.toFixed(6)
-                set the value of #inv_norm_prob_out2 to out_gt.toFixed(6)
+                set the value of #sample_inv_norm_prob_out1 to out_lt.toFixed(6)
+                set the value of #sample_inv_norm_prob_out2 to out_gt.toFixed(6)
             end
         end
     end
@@ -212,8 +214,9 @@
             set local mean to the value of #t_score_calc_mean
             set local stdev to the value of #t_score_calc_stdev
             set local n to the value of #t_score_calc_n
-            set local n to Math.max(Math.floor(n), 1)
             set local x to the value of #t_score_calc_x
+
+            set local n to Math.max(Math.floor(n), 1)
 
             if has_val(mean) and has_val(stdev) and has_val(n) and has_val(x)
                 set local t_score to t_score_fn(mean, stdev, n, x)
