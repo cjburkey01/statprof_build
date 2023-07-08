@@ -195,6 +195,13 @@
         end
     end
 
+    behavior TypeTwoMeanTextUpdate
+        on keyup or input or changed
+            -- TODO: DO THIS ONE!
+            log "Changed!"
+        end
+    end
+
     behavior TScoreTextUpdate
         on keyup or input
             set local mean to the value of #t_score_calc_mean

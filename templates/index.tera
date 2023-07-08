@@ -20,6 +20,7 @@
             {% include "calculators/sample_norm_prob.tera" %}
             {% include "calculators/inv_norm_prob.tera" %}
             {% include "calculators/inv_sample_norm_prob.tera" %}
+            {% include "calculators/type_two_error_prob.tera" %}
 
             <h2>Student T-Distribution</h2>
 

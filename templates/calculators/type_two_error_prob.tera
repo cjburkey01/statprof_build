@@ -1,0 +1,164 @@
+<!-- Type 2 error probability -->
+<div id="type_two_error">
+    <h3>Probability of Type II Error for Mean</h3>
+    <div class="wrapper" id="type_two_error_wrapper">
+        <p>
+            Calculate the probability that we will fail to reject the null 
+            hypothesis <code>H<sub>0</sub></code>, given that it is actually 
+            false.
+        </p>
+        <p>
+            The null hypothesis should be the current assumed population mean 
+            <code>&mu;</code>, and the standard deviation <code>&sigma;</code> 
+            should be the assumed population standard deviation. The level of 
+            significance <code>&alpha;</code> represents the probability that 
+            we could have observed a sample mean <code>x&#x0304;</code> from
+            a random sample of the population according to the null hypothesis.
+            This means the probability of a type I error, the probability that 
+            we reject the null hypothesis even though it is true, is simply 
+            <code>&alpha;</code>.
+        </p>
+        <p>
+            If the alternative hypothesis <code>H<sub>a</sub></code> is that 
+            the population mean is less than the assumed <code>&mu;</code>, 
+            then select the 
+            <code>H<sub>a</sub></code> &lt; <code>H<sub>0</sub></code> option.
+            Likewise, if the alternative hypothesis is that the population mean 
+            is greater than the assumed <code>&mu;</code>, then select the 
+            <code>H<sub>a</sub></code> &gt; <code>H<sub>0</sub></code> option.
+            Otherwise for a two-tailed test where the alternative hypothesis is 
+            that the population mean is greater than or less than the assumed
+            <code>&mu;</code>, select the 
+            <code>H<sub>a</sub></code> &ne; <code>H<sub>0</sub></code> option.
+        </p>
+
+        <table>
+            <tbody>
+                <tr>
+                    <td>
+                        <label for="type_two_error_mean">
+                            Null hypothesis (<code>H<sub>0</sub></code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="type_two_error_mean"
+                               size="6"
+                               step="1.0"
+                               value="0.0"
+                               _="install TypeTwoMeanTextUpdate" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>Alternative Hypothesis (<code>H<sub>a</sub></code>):</label>
+                    </td>
+                    <td>
+                        <input type="radio" 
+                               id="type_two_error_lt" 
+                               value="0" 
+                               name="type_two_error_tails"
+                               checked
+                               _="install TypeTwoMeanTextUpdate" />
+                        <label for="type_two_error_lt">
+                            <code>H<sub>a</sub></code> &lt; <code>H<sub>0</sub></code>
+                        </label>
+                        <br />
+                        <input type="radio"
+                               id="type_two_error_gt"
+                               value="1"
+                               name="type_two_error_tails"
+                               _="install TypeTwoMeanTextUpdate" />
+                        <label for="type_two_error_gt">
+                            <code>H<sub>a</sub></code> &gt; <code>H<sub>0</sub></code>
+                        </label>
+                        <br />
+                        <input type="radio"
+                               id="type_two_error_ne"
+                               value="2"
+                               name="type_two_error_tails"
+                               _="install TypeTwoMeanTextUpdate" />
+                        <label for="type_two_error_ne">
+                            <code>H<sub>a</sub></code> &ne; <code>H<sub>0</sub></code>
+                        </label>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="type_two_error_stdev">
+                            Standard Deviation (<code>&sigma;</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="type_two_error_stdev"
+                               size="6"
+                               step="0.1"
+                               value="1.0"
+                               _="install TypeTwoMeanTextUpdate" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="sample_norm_prob_calc_n">
+                            Sample Size (<code>n</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="sample_norm_prob_calc_n"
+                               size="6"
+                               min="1"
+                               _="install TypeTwoMeanTextUpdate" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="inv_norm_prob_calc_alpha">
+                            Level of significance (<code>&alpha;</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="inv_norm_prob_calc_alpha"
+                               size="6"
+                               step="0.05"
+                               min="0.0"
+                               max="1.0"
+                               value="0.1"
+                               _="install TypeTwoMeanTextUpdate" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="type_two_error_observed">
+                            Observed mean (<code>x&#x0304;</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="type_two_error_observed"
+                               size="6"
+                               step="1.0"
+                               value="0.0"
+                               _="install TypeTwoMeanTextUpdate" />
+                    </td>
+                </tr>
+                <!-- TODO: MAKE THIS -->
+                <tr>
+                    <td>
+                        <label for="norm_prob_output">
+                            Probability:
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="norm_prob_output"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
