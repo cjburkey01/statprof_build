@@ -27,6 +27,24 @@
         return jStat.normal.cdf(x, mean, stdev)
     end
 
+    def norm_prob_cdf_gt_lt(mean, stdev, gt, lt)
+        if has_val(lt) and has_val(gt)
+            set gt_prob to norm_prob_cdf_fn(mean, stdev, gt)
+            set lt_prob to norm_prob_cdf_fn(mean, stdev, lt)
+
+            if gt <= lt
+                -- If gt is less than lt, we want inner probability.
+                return (lt_prob - gt_prob)
+            else
+                return lt_prob + (1.0 - gt_prob)
+            end
+        else if has_val(lt)
+            return lt_prob
+        else if has_val(gt)
+            return gt_prob
+        end
+    end
+
     def inv_norm_cdf_fn(mean, stdev, p)
         return jStat.normal.inv(p, mean, stdev)
     end
