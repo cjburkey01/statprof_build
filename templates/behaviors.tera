@@ -174,64 +174,86 @@
             set n to the value of #type_two_error_n
             set alpha to the value of #type_two_error_alpha
             set sample_mean to the value of #type_two_error_observed
-            
-            -- This works better than checking if each is checked, for some reason
-            set tail_type to 1
-            if #type_two_error_gt.checked
-                set tail_type to 2
-            else if #type_two_error_ne.checked
-                set tail_type to 3
+
+            set tail_type to the value of <input[name="type_two_error_tails"]:checked/>
+            if has_val(tail_type)
+                set tail_type to tail_type[0] as Int
             end
 
-            if has_val(pop_mean) 
-                    and has_val(stdev) 
-                    and has_val(n) 
-                    and has_val(alpha) 
+            if has_val(pop_mean)
+                    and has_val(stdev)
+                    and has_val(n)
+                    and has_val(alpha)
                     and has_val(sample_mean)
-                    and tail_type > 0
+                    and has_val(tail_type)
+                    and tail_type >= 1
+                    and tail_type <= 3
                 set stdev to stdev / Math.sqrt(n)
                 set n to Math.max(Math.floor(n), 1)
-                set alpha to Math.min(Math.max(alpha, 0.0), 0.5)
+                set alpha to Math.min(Math.max(alpha, 0.0), 1.0)
 
-                -- Find critical Z on null hypothesis mean
-                set null_crit_prob to alpha
-                set null_crit_z to inv_norm_cdf_fn(0, 1, null_crit_prob)
-                if sample_mean > pop_mean
-                    set null_crit_z to -null_crit_z
-                end
-                set the value of #type_two_error_crit_z_null to null_crit_z.toFixed(6)
 
-                -- Find the numerical value of this Z-score
-                set null_crit_val to x_from_z(pop_mean, stdev, null_crit_z)
-                set the value of #type_two_error_crit_val_null to null_crit_val.toFixed(6)
+                if tail_type is 1
+                    -- Find critical Z on null hypothesis mean
+                    set null_crit_prob to alpha
+                    set null_crit_z to inv_norm_cdf_fn(0, 1, null_crit_prob)
+                    set the value of #type_two_error_crit_z_null to null_crit_z.toFixed(6)
 
-                -- Find the Z-score on the alternative hypothesis distribution
-                set alt_crit_z to z_score_fn(sample_mean, stdev, null_crit_val)
-                set the value of #type_two_error_crit_z_alt to alt_crit_z.toFixed(6)
+                    -- Find the numerical value of this Z-score
+                    set null_crit_val to x_from_z(pop_mean, stdev, null_crit_z)
+                    set the value of #type_two_error_crit_val_null to null_crit_val.toFixed(6)
 
-                -- Power & probability
-                set power to 0.0
-                set beta to 0.0
-                set reject_text to "No"
-                -- TODO: REPLACE THIS
-                if sample_mean <= pop_mean
-                    -- If the sample mean is greater than the population 
-                    -- mean (and we're performing a one-tail test), we want
-                    -- the probability area for values below the given critical
-                    -- value to represent the power.
+                    -- Find the Z-score on the alternative hypothesis distribution
+                    set alt_crit_z to z_score_fn(sample_mean, stdev, null_crit_val)
+                    set the value of #type_two_error_crit_z_alt to alt_crit_z.toFixed(6)
+
+                    -- Power
                     set power to norm_prob_cdf_fn(0, 1, alt_crit_z)
+                    set the value of #type_two_error_power to power.toFixed(6)
+
+                    -- Type II error probability
                     set beta to 1.0 - power
-                else
-                    -- Flip to the right side of this distribution if we're 
-                    -- doing a one-tailed test, we want the right tail from the 
-                    -- critical point between the population and sampled means.
-                    --  set power to norm_prob_cdf_fn(sample_mean, stdev, 1.0 - alt_crit_z)
-                    set beta to norm_prob_cdf_fn(0, 1, alt_crit_z)
-                    set power to 1.0 - beta
+                    set the value of #type_two_error_crit_alt_tail to beta.toFixed(6)
+
+                    -- P-Value for sample mean
+                    set p to norm_prob_cdf_fn(pop_mean, stdev, sample_mean)
+                    set the value of #type_two_error_reject_p_val to p.toFixed(6)
+
+                    -- Whether to reject based on P-Value
+                    set reject_text to "No"
+                    if p < alpha then
+                        set reject_text to "Yes"
+                    end
+                    set the value of #type_two_error_reject_null to reject_text
+                else if tail_type is 2
+                    -- TODO!
+                    
+                    -- P-Value for sample mean
+                    set p to norm_prob_cdf_gt(pop_mean, stdev, sample_mean)
+                    set the value of #type_two_error_reject_p_val to p.toFixed(6)
+
+                    -- Whether to reject based on P-Value
+                    set reject_text to "No"
+                    if p < alpha then
+                        set reject_text to "Yes"
+                    end
+                    set the value of #type_two_error_reject_null to reject_text
+                else if tail_type is 3
+                    -- TODO!
+
+                    -- P-Value for sample mean
+                    set p to norm_prob_cdf_outside(pop_mean, stdev, sample_mean)
+                    set the value of #type_two_error_reject_p_val to p.toFixed(6)
+
+                    -- Whether to reject based on P-Value
+                    set reject_text to "No"
+                    if p < alpha then
+                        set reject_text to "Yes"
+                    end
+                    set the value of #type_two_error_reject_null to reject_text
                 end
-                set the value of #type_two_error_power to power.toFixed(6)
-                set the value of #type_two_error_crit_alt_tail to beta.toFixed(6)
-                set the value of #type_two_error_reject_null to reject_text
+            else
+                set the value of .type_two_output_field to ""
             end
         end
     end
