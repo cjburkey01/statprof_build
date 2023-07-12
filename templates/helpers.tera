@@ -70,4 +70,38 @@
     def inv_t_cdf_fn(n, p)
         return jStat.studentt.inv(p, n - 1)
     end
+
+    def t_prob_cdf_fn(mean, stdev, n, x)
+        return jStat.studentt.cdf(t_score_fn(mean, stdev, n, x), n - 1)
+    end
+
+    def t_prob_cdf_gt(mean, stdev, n, x)
+        return 1.0 - jStat.studentt.cdf(t_score_fn(mean, stdev, n, x), n - 1)
+    end
+
+    def t_prob_cdf_btwn(mean, stdev, n, x1, x2)
+        set min to Math.min(x1, x2)
+        set max to Math.max(x1, x2)
+        return t_prob_cdf_fn(mean, stdev, n, max) 
+                - t_prob_cdf_fn(mean, stdev, n, min)
+    end
+
+    def t_prob_cdf_outside(mean, stdev, n, x1, x2)
+        return 1.0 - t_prob_cdf_btwn(mean, stdev, n, x1, x2)
+    end
+
+    def t_prob_cdf_gt_lt(mean, stdev, gt, lt)
+        if has_val(lt) and has_val(gt)
+            if gt <= lt
+                -- If gt is less than lt, we want inner probability.
+                return t_prob_cdf_btwn(mean, stdev, gt, lt)
+            else
+                return t_prob_cdf_outside(mean, stdev, gt, lt)
+            end
+        else if has_val(lt)
+            return t_prob_cdf_fn(mean, stdev, lt)
+        else if has_val(gt)
+            return t_prob_cdf_gt(mean, stdev, gt)
+        end
+    end
 </script>

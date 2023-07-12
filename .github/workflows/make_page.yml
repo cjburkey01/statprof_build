@@ -18,17 +18,8 @@ jobs:
         git: https://github.com/chevdor/tera-cli
         tag: v0.2.4
 
-    - name: Clear build dir
-      run:  rm -rf build
-
-    - name: Make build dir
-      run:  mkdir -p build
-
-    - name: Run tera cli
-      run:  RUST_BACKTRACE=1 tera --template templates/index.tera --include empty.json > build/index.html
-
-    - name: Copy public files to build dir
-      run:  cp public/* build/
+    - name: Run build script
+      run: sh build.sh
 
     # Deploy to local repo
     - name: Deploy

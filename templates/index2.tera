@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        {% include "head.tera" %}
+        <!-- HI! -->
+    </head>
+    <body>
+        <div id="main_container">
+            <div id="title">
+                <h1>StatProf</h1>
+            </div>
+
+            <h2>Distributions</h2>
+
+            {% include "calculators/norm_prob/norm_prob_new.tera" %}
+        </div>
+
+        <footer>
+            &copy 2023 CJ Burkey &verbar;
+            Source available on <a target="_blank"
+                                   title="View source on GitHub"
+                                   href="https://github.com/cjburkey01/statprof_build">
+                GitHub
+            </a>
+        </footer>
+
+        <!-- Helpers -->
+        {% include "helpers.tera" %}
+
+        <!-- Stats helpers -->
+        <script src="./jstat_1.9.6.min.js"></script>
+        <!-- Hyperscript! :) -->
+        <script src="./hyperscript_0.9.9.js"></script>
+    </body>
+</html>

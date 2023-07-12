@@ -1,0 +1,34 @@
+behavior NormProb
+    on norm_prob_update queue first
+        set dist to the value of #norm_prob_calc_type
+        set mean to the value of #norm_prob_calc_mean
+        set stdev to the value of #norm_prob_calc_stdev
+        set n to the value of #norm_prob_calc_n
+        set gt to the value of #norm_prob_calc_gt
+        set lt to the value of #norm_prob_calc_lt
+
+        set the value of #norm_prob_output to ""
+        set the value of #norm_prob_gt_zscore to ""
+        set the value of #norm_prob_lt_zscore to ""
+
+        if has_val(dist) and has_val(mean) and has_val(stdev) and has_val(n)
+            set dist to Math.max(1, Math.min(2, dist as Int))
+            set mean to mean as Float
+            set n to Math.max(1, n as Int)
+            set stdev to stdev as Float
+            set stdev_n to stdev / Math.sqrt(n)
+
+            if has_val(gt)
+                set the value of norm_prob_gt_zscore to z_score_fn(mean, stdev_n, gt).toFixed(6)
+            end
+            if has_val(lt)
+                set the value of norm_prob_lt_zscore to z_score_fn(mean, stdev_n, lt).toFixed(6)
+            end
+
+            set output to norm_prob_cdf_gt_lt(mean, stdev_n, gt, lt)
+            if output exists
+                set the value of #norm_prob_output to output.toFixed(6)
+            end
+        end
+    end
+end

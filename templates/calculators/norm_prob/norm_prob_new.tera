@@ -1,0 +1,180 @@
+<!-- Normal probability -->
+<script type="text/hyperscript">
+    {% include "calculators/norm_prob/norm_prob_behavior._hs" %}
+</script>
+<div id="norm_prob_calc">
+    <h3>Normal Distribution P-Value</h3>
+    <div class="wrapper" id="norm_prob_calc_wrapper" _="install NormProb">
+        <p>
+            Calculates the area under the normal probability density function,
+            representing a probability value.
+        </p>
+        <p>
+            Calculate the probability of randomly picking one value above,
+            below, between, or outside of the given less than/greater than
+            values, assuming the population is normally distributed.
+        </p>
+        <p>
+            If a sample size is provided, the standard deviation is divided by 
+            the square root of the sample size to calculate the probability of a
+            random sample of the given sample size having a mean of the values
+            below/above/between/outside what is specified in the
+            <code>x &gt;</code> and <code>x &lt;</code> fields, assuming that
+            the population is normally distributed or the sample size
+            <code>n</code> &geq; 30, and the population standard deviation is 
+            assumed to be what is provided. If the population standard deviation
+            is unknown or <code>n</code> &lt; 30, you should use the Student
+            T-Distribution.
+        </p>
+        <p>
+            Think of the <code>x &gt;</code> and <code>x &lt;</code> fields as
+            min and max fields, respectively. Filling in the <code>x &gt;</code>
+            field will calculate the probability area from that point towards
+            positive infinity. If both the greater than (min) and less than
+            (max) fields are provided, the probability area either between or
+            outside of the given points will be calculated.
+        </p>
+        <p>
+            Leave either <code>x &gt;</code> or <code>x &lt;</code> blank to
+            perform a one-tailed probability calculation, but at least one of
+            these fields must be provided.
+        </p>
+
+        <table>
+            <tbody>
+                <tr>
+                    <td class="row_label">
+                        <label for="norm_prob_calc_type">
+                            Distribution:
+                        </label>
+                    </td>
+                    <td>
+                        <select id="norm_prob_calc_type"
+                                _="on change send norm_prob_update to #norm_prob_calc_wrapper">
+                            <option value="1" selected>Normal (Gaussian) Distribution</option>
+                            <!-- <option value="2">Student T-Distribution</option> -->
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="row_label">
+                        <label for="norm_prob_calc_mean">
+                            Mean (<code>&mu;</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="norm_prob_calc_mean"
+                               size="8"
+                               step="1.0"
+                               value="0.0"
+                               _="on keyup or input send norm_prob_update to #norm_prob_calc_wrapper" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="row_label">
+                        <label for="norm_prob_calc_stdev">
+                            Standard Deviation (<code>&sigma;</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="norm_prob_calc_stdev"
+                               size="8"
+                               step="0.1"
+                               value="1.0"
+                               _="on keyup or input send norm_prob_update to #norm_prob_calc_wrapper" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="row_label">
+                        <label for="norm_prob_calc_n">
+                            Sample Size (<code>n</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="norm_prob_calc_n"
+                               size="8"
+                               step="1"
+                               value="1"
+                               min="1"
+                               _="on keyup or input send norm_prob_update to #norm_prob_calc_wrapper" />
+                    </td>
+                    <td>
+                        (Set to 1 if unsure)
+                    </td>
+                </tr>
+                <tr>
+                    <td class="row_label">
+                        <label for="norm_prob_calc_gt">
+                            x &gt;
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="norm_prob_calc_gt"
+                               size="8"
+                               step="0.5"
+                               _="on keyup or input send norm_prob_update to #norm_prob_calc_wrapper" />
+                    </td>
+                    <td>(May be blank)</td>
+                </tr>
+                <tr>
+                    <td class="row_label">
+                        <label for="norm_prob_calc_lt">
+                            x &lt;
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="norm_prob_calc_lt"
+                               size="8"
+                               step="0.5"
+                               _="on keyup or input send norm_prob_update to #norm_prob_calc_wrapper" />
+                    </td>
+                    <td>(May be blank)</td>
+                </tr>
+                <tr>
+                    <td class="row_label">
+                        <label for="norm_prob_gt_zscore">
+                            z<sub>x&gt;</sub> :
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="norm_prob_gt_zscore"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="row_label">
+                        <label for="norm_prob_lt_zscore">
+                            z<sub>x&lt;</sub> :
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="norm_prob_lt_zscore"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="row_label">
+                        <label for="norm_prob_output">
+                            Probability:
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="norm_prob_output"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
