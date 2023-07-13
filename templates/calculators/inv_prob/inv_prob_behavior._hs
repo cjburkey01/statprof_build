@@ -1,0 +1,62 @@
+behavior InvProb
+    on inv_prob_update queue first
+        set dist to the value of #inv_prob_calc_type
+        set mean to the value of #inv_prob_calc_mean
+        set stdev to the value of #inv_prob_calc_stdev
+        set n to the value of #inv_prob_calc_n
+        set p to the value of #inv_prob_calc_p
+
+        set the value of #inv_prob_lt_z to ""
+        set the value of #inv_prob_gt_z to ""
+        set the value of #inv_prob_btwn1_z to ""
+        set the value of #inv_prob_btwn2_z to ""
+        set the value of #inv_prob_out1_z to ""
+        set the value of #inv_prob_out2_z to ""
+
+        set the value of #inv_prob_lt to ""
+        set the value of #inv_prob_gt to ""
+        set the value of #inv_prob_btwn1 to ""
+        set the value of #inv_prob_btwn2 to ""
+        set the value of #inv_prob_out1 to ""
+        set the value of #inv_prob_out2 to ""
+
+        if has_val(dist) and has_val(mean) and has_val(stdev) and has_val(n) and has_val(p)
+            set dist to Math.max(1, Math.min(2, dist as Int))
+            set mean to mean as Float
+            set n to Math.max(1, n as Int)
+            set stdev to stdev as Float
+            set stdev_n to stdev / Math.sqrt(n)
+            set p to Math.max(0.0, Math.min(1.0, p as Float))
+
+            set z_lt to inv_norm_cdf_fn(0.0, 1.0, p)
+            set z_gt to -z_lt
+            set lt to x_from_z(mean, stdev_n, z_lt)
+            set gt to x_from_z(mean, stdev_n, z_gt)
+
+            set the value of #inv_prob_lt_z to z_lt.toFixed(6)
+            set the value of #inv_prob_gt_z to z_gt.toFixed(6)
+            set the value of #inv_prob_lt to lt.toFixed(6)
+            set the value of #inv_prob_gt to gt.toFixed(6)
+
+            set z_btwn1 to inv_norm_cdf_fn(0.0, 1.0, (1.0 - p) / 2.0)
+            set z_btwn2 to -z_btwn1
+            set btwn1 to x_from_z(mean, stdev_n, z_btwn1)
+            set btwn2 to x_from_z(mean, stdev_n, z_btwn2)
+
+            set the value of #inv_prob_btwn1_z to z_btwn1.toFixed(6)
+            set the value of #inv_prob_btwn2_z to z_btwn2.toFixed(6)
+            set the value of #inv_prob_btwn1 to btwn1.toFixed(6)
+            set the value of #inv_prob_btwn2 to btwn2.toFixed(6)
+
+            set z_out1 to inv_norm_cdf_fn(0.0, 1.0, p / 2.0)
+            set z_out2 to -z_out1
+            set out1 to x_from_z(mean, stdev_n, z_out1)
+            set out2 to x_from_z(mean, stdev_n, z_out2)
+
+            set the value of #inv_prob_out1_z to z_out1.toFixed(6)
+            set the value of #inv_prob_out2_z to z_out2.toFixed(6)
+            set the value of #inv_prob_out1 to out1.toFixed(6)
+            set the value of #inv_prob_out2 to out2.toFixed(6)
+        end
+    end
+end

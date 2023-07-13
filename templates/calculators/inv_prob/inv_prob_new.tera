@@ -1,0 +1,220 @@
+<!-- Normal probability -->
+<script type="text/hyperscript">
+    {% include "calculators/inv_prob/inv_prob_behavior._hs" %}
+</script>
+<div id="inv_prob_calc">
+    <h3>Inverse Normal Distribution</h3>
+    <div class="wrapper" id="inv_prob_calc_wrapper" _="install InvProb">
+        <p>
+            TODO
+        </p>
+
+        <table>
+            <tbody>
+                <tr>
+                    <td class="row_label">
+                        <label for="inv_prob_calc_type">
+                            Distribution:
+                        </label>
+                    </td>
+                    <td>
+                        <select id="inv_prob_calc_type"
+                                _="on change send inv_prob_update to #inv_prob_calc_wrapper">
+                            <option value="1" selected>Normal (Gaussian) Distribution</option>
+                            <!-- <option value="2">Student T-Distribution</option> -->
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="row_label">
+                        <label for="inv_prob_calc_mean">
+                            Mean (<code>&mu;</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="inv_prob_calc_mean"
+                               size="8"
+                               step="1.0"
+                               value="0.0"
+                               _="on keyup or input send inv_prob_update to #inv_prob_calc_wrapper" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="row_label">
+                        <label for="inv_prob_calc_stdev">
+                            Standard Deviation (<code>&sigma;</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="inv_prob_calc_stdev"
+                               size="8"
+                               step="0.1"
+                               value="1.0"
+                               _="on keyup or input send inv_prob_update to #inv_prob_calc_wrapper" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="row_label">
+                        <label for="inv_prob_calc_n">
+                            Sample Size (<code>n</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="inv_prob_calc_n"
+                               size="8"
+                               step="1"
+                               value="1"
+                               min="1"
+                               _="on keyup or input send inv_prob_update to #inv_prob_calc_wrapper" />
+                    </td>
+                    <td>
+                        (Set <code>n</code> to 1 if unsure)
+                    </td>
+                </tr>
+                <tr>
+                    <td class="row_label">
+                        <label for="inv_prob_calc_p">
+                            Proportion (<code>p</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="inv_prob_calc_p"
+                               size="8"
+                               step="0.05"
+                               min="0.0"
+                               max="1.0"
+                               _="on keyup or input send inv_prob_update to #inv_prob_calc_wrapper" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="row_label">
+                        <label for="inv_prob_lt_z">
+                            Z<sub>x&lt;</sub>
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="inv_prob_lt_z"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="row_label">
+                        <label for="inv_prob_gt_z">
+                            Z<sub>x&gt;</sub>
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="inv_prob_gt_z"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="row_label">
+                        <label for="inv_prob_btwn1_z">
+                            Z<sub>x</sub> between:
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="inv_prob_btwn1_z"
+                               size="10"
+                               readonly />
+                        <br />
+                        <input type="text"
+                               id="inv_prob_btwn2_z"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="row_label">
+                        <label for="inv_prob_out1_z">
+                            Z<sub>x</sub> outside:
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="inv_prob_out1_z"
+                               size="10"
+                               readonly />
+                        <br />
+                        <input type="text"
+                                id="inv_prob_out2_z"
+                                size="10"
+                                readonly />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="row_label">
+                        <label for="inv_prob_lt">
+                            x &lt;
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="inv_prob_lt"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="row_label">
+                        <label for="inv_prob_gt">
+                            x &gt;
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="inv_prob_gt"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="row_label">
+                        <label for="inv_prob_btwn1">
+                            x between:
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="inv_prob_btwn1"
+                               size="10"
+                               readonly />
+                        <br />
+                        <input type="text"
+                               id="inv_prob_btwn2"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="row_label">
+                        <label for="inv_prob_out1">
+                            x outside:
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="inv_prob_out1"
+                               size="10"
+                               readonly />
+                        <br />
+                        <input type="text"
+                                id="inv_prob_out2"
+                                size="10"
+                                readonly />
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

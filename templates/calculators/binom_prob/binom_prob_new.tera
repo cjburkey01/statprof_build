@@ -1,0 +1,120 @@
+<!-- Binomial normal approximation probability -->
+<script type="text/hyperscript">
+    {% include "calculators/binom_prob/binom_prob_behavior._hs" %}
+</script>
+<div id="binom_prob_calc">
+    <h3>Binomial Distribution Normal P-Value</h3>
+    <div class="wrapper" id="binom_prob_calc_wrapper" _="install BinomProb">
+        <p>
+            TODO
+        </p>
+
+        <table>
+            <tbody>
+                <tr>
+                    <td class="row_label">
+                        <label for="binom_prob_calc_n">
+                            Sample Size (<code>n</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="binom_prob_calc_n"
+                               size="8"
+                               step="1"
+                               value="1"
+                               min="1"
+                               _="on keyup or input send binom_prob_update to #binom_prob_calc_wrapper" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="row_label">
+                        <label for="binom_prob_calc_p">
+                            <code>p</code>:
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="binom_prob_calc_p"
+                               size="8"
+                               step="0.05"
+                               min="0.0"
+                               max="1.0"
+                               _="on keyup or input send binom_prob_update to #binom_prob_calc_wrapper" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="row_label">
+                        <label for="binom_prob_calc_gt">
+                            x &gt;
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="binom_prob_calc_gt"
+                               size="8"
+                               step="1"
+                               min="0"
+                               _="on keyup or input send binom_prob_update to #binom_prob_calc_wrapper" />
+                    </td>
+                    <td>(<code>x &gt;</code> may be blank)</td>
+                </tr>
+                <tr>
+                    <td class="row_label">
+                        <label for="binom_prob_calc_lt">
+                            x &lt;
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="binom_prob_calc_lt"
+                               size="8"
+                               step="1"
+                               min="1"
+                               _="on keyup or input send binom_prob_update to #binom_prob_calc_wrapper" />
+                    </td>
+                    <td>(<code>x &lt;</code> may be blank)</td>
+                </tr>
+                <tr>
+                    <td class="row_label">
+                        <label for="binom_prob_output">
+                            Probability:
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="binom_prob_output"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="row_label">
+                        <label for="binom_prob_out_mean">
+                            Mean (<code>&mu;</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="binom_prob_out_mean"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="row_label">
+                        <label for="binom_prob_out_stdev">
+                            Standard deviation (<code>&sigma;</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="binom_prob_out_stdev"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

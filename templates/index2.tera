@@ -12,6 +12,9 @@
 
             <h2>Distributions</h2>
 
+            {% include "calculators/z_score/z_score_new.tera" %}
+            {% include "calculators/binom_prob/binom_prob_new.tera" %}
+            {% include "calculators/inv_prob/inv_prob_new.tera" %}
             {% include "calculators/norm_prob/norm_prob_new.tera" %}
         </div>
 
@@ -25,7 +28,9 @@
         </footer>
 
         <!-- Helpers -->
-        {% include "helpers.tera" %}
+        <script type="text/hyperscript">
+            {% include "helpers._hs" %}
+        </script>
 
         <!-- Stats helpers -->
         <script src="./jstat_1.9.6.min.js"></script>

@@ -1,0 +1,105 @@
+def has_val(input)
+    return input exists and input is not empty
+end
+
+def z_score_fn(mean, stdev, x)
+    return (x as Float - mean as Float) / stdev as Float
+end
+
+def t_score_fn(mean, stdev, n, x)
+    return (x as Float - mean as Float) / (stdev as Float / Math.sqrt(n))
+end
+
+def x_from_z(mean, stdev, z)
+    -- z=(x-mean)/stdev
+    -- z*stdev=(x-mean)
+    -- z*stdev+mean=x
+    return (mean as Float + (z as Float * stdev as Float))
+end
+
+def round(value, decimal_places)
+    set local factor to Math.pow(10, decimal_places)
+    return Math.round(value * factor) / factor
+end
+
+def norm_prob_cdf_fn(mean, stdev, x)
+    return jStat.normal.cdf(x, mean, stdev)
+end
+
+def norm_prob_cdf_gt(mean, stdev, x)
+    return 1.0 - jStat.normal.cdf(x, mean, stdev)
+end
+
+def norm_prob_cdf_btwn(mean, stdev, x1, x2)
+    set min to Math.min(x1, x2)
+    set max to Math.max(x1, x2)
+    return norm_prob_cdf_fn(mean, stdev, max)
+            - norm_prob_cdf_fn(mean, stdev, min)
+end
+
+def norm_prob_cdf_outside(mean, stdev, x1, x2)
+    return 1.0 - norm_prob_cdf_btwn(mean, stdev, x1, x2)
+end
+
+-- Either gt or lt may be undefined/null/"", this function can be
+-- considered a general probability area calculator.
+-- If gt is less than lt, then we find P(gt<x<lt), which is between the two
+-- values. If lt is less than t, we find the tail probabilities because
+-- we find P(lt<x<gt), or 1.0-P(gt<x<lt), the inverse of the inner
+-- probability between the two values.
+def norm_prob_cdf_gt_lt(mean, stdev, gt, lt)
+    if has_val(lt) and has_val(gt)
+        if gt <= lt
+            -- If gt is less than lt, we want inner probability.
+            return norm_prob_cdf_btwn(mean, stdev, gt, lt)
+        else
+            return norm_prob_cdf_outside(mean, stdev, gt, lt)
+        end
+    else if has_val(lt)
+        return norm_prob_cdf_fn(mean, stdev, lt)
+    else if has_val(gt)
+        return norm_prob_cdf_gt(mean, stdev, gt)
+    end
+end
+
+def inv_norm_cdf_fn(mean, stdev, p)
+    return jStat.normal.inv(p, mean, stdev)
+end
+
+def inv_t_cdf_fn(n, p)
+    return jStat.studentt.inv(p, n - 1)
+end
+
+def binom_cdf_fn(n, p, x)
+    return jStat.binomial.cdf(x, n, p)
+end
+
+def binom_cdf_gt(n, p, x)
+    return 1.0 - binom_cdf_fn(n, p, x)
+end
+
+def binom_cdf_btwn(n, p, x1, x2)
+    set min to Math.min(x1, x2)
+    set max to Math.max(x1, x2)
+    return binom_cdf_fn(n, p, max)
+            - binom_cdf_fn(n, p, min)
+end
+
+def binom_cdf_outside(n, p, x1, x2)
+    return 1.0 - binom_cdf_btwn(n, p, x1, x2)
+end
+
+def binom_cdf_gt_lt(n, p, gt, lt)
+    if has_val(lt) and has_val(gt)
+        if gt <= lt
+            -- If gt is less than lt, we want inner probability.
+            return binom_cdf_btwn(n, p, gt, lt)
+        else
+            return binom_cdf_outside(n, p, gt, lt)
+        end
+    else if has_val(lt)
+        return binom_cdf_fn(n, p, lt)
+    else if has_val(gt)
+        return binom_cdf_gt(n, p, gt)
+    end
+end

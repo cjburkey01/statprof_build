@@ -1,0 +1,19 @@
+behavior ZScore
+    on z_score_update queue first
+        set mean to the value of #z_score_calc_mean
+        set stdev to the value of #z_score_calc_stdev
+        set n to the value of #z_score_calc_n
+        set x to the value of #z_score_calc_x
+
+        set the value of #z_score_output to ""
+
+        if has_val(mean) and has_val(stdev) and has_val(n) and has_val(x)
+            set mean to mean as Float
+            set n to n as Int
+            set stdev to (stdev as Float) / Math.sqrt(n)
+            set x to x as Float
+
+            set the value of #z_score_output to z_score_fn(mean, stdev, x).toFixed(6)
+        end
+    end
+end

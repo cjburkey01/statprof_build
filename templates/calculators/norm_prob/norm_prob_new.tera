@@ -15,13 +15,13 @@
             values, assuming the population is normally distributed.
         </p>
         <p>
-            If a sample size is provided, the standard deviation is divided by 
+            If a sample size is provided, the standard deviation is divided by
             the square root of the sample size to calculate the probability of a
             random sample of the given sample size having a mean of the values
             below/above/between/outside what is specified in the
             <code>x &gt;</code> and <code>x &lt;</code> fields, assuming that
             the population is normally distributed or the sample size
-            <code>n</code> &geq; 30, and the population standard deviation is 
+            <code>n</code> &geq; 30, and the population standard deviation is
             assumed to be what is provided. If the population standard deviation
             is unknown or <code>n</code> &lt; 30, you should use the Student
             T-Distribution.
@@ -102,7 +102,7 @@
                                _="on keyup or input send norm_prob_update to #norm_prob_calc_wrapper" />
                     </td>
                     <td>
-                        (Set to 1 if unsure)
+                        (Set <code>n</code> to 1 if unsure)
                     </td>
                 </tr>
                 <tr>
@@ -118,7 +118,7 @@
                                step="0.5"
                                _="on keyup or input send norm_prob_update to #norm_prob_calc_wrapper" />
                     </td>
-                    <td>(May be blank)</td>
+                    <td>(<code>x &gt;</code> be blank)</td>
                 </tr>
                 <tr>
                     <td class="row_label">
@@ -133,7 +133,7 @@
                                step="0.5"
                                _="on keyup or input send norm_prob_update to #norm_prob_calc_wrapper" />
                     </td>
-                    <td>(May be blank)</td>
+                    <td>(<code>x &lt;</code> be blank)</td>
                 </tr>
                 <tr>
                     <td class="row_label">

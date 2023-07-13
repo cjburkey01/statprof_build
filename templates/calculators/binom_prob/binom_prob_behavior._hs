@@ -1,0 +1,31 @@
+behavior BinomProb
+    on binom_prob_update queue first
+        set n to the value of #binom_prob_calc_n
+        set p to the value of #binom_prob_calc_p
+        set gt to the value of #binom_prob_calc_gt
+        set lt to the value of #binom_prob_calc_lt
+
+        set the value of #binom_prob_output to ""
+        set the value of #binom_prob_out_mean to ""
+        set the value of #binom_prob_out_stdev to ""
+
+        if has_val(n) and has_val(p)
+            set n to Math.max(1, n as Int)
+            set p to Math.max(0.0, Math.min(1.0, p as Float))
+
+            if has_val(gt)
+                set gt to Math.max(0, gt as Int)
+            end
+            if has_val(lt)
+                set lt to Math.max(1, lt as Int)
+            end
+
+            set output to binom_cdf_gt_lt(n, p, gt, lt)
+            if output exists
+                set the value of #binom_prob_output to output.toFixed(6)
+            end
+            set the value of #binom_prob_out_mean to (n * p).toFixed(6)
+            set the value of #binom_prob_out_stdev to Math.sqrt(n * p * (1.0 - p)).toFixed(6)
+        end
+    end
+end
