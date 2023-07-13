@@ -18,6 +18,555 @@
 
             <h2>Distributions</h2>
 
+            <!-- Binomial normal approximation probability -->
+<script type="text/hyperscript">
+    behavior ZScore
+    on z_score_update queue first
+        set mean to the value of #z_score_calc_mean
+        set stdev to the value of #z_score_calc_stdev
+        set n to the value of #z_score_calc_n
+        set x to the value of #z_score_calc_x
+
+        set the value of #z_score_output to ""
+
+        if has_val(mean) and has_val(stdev) and has_val(n) and has_val(x)
+            set mean to mean as Float
+            set n to n as Int
+            set stdev to (stdev as Float) / Math.sqrt(n)
+            set x to x as Float
+
+            set the value of #z_score_output to z_score_fn(mean, stdev, x).toFixed(6)
+        end
+    end
+end
+
+</script>
+<div id="z_score_calc">
+    <h3>Z-Score/T-Score</h3>
+    <div class="wrapper" id="z_score_calc_wrapper" _="install ZScore">
+        <p>
+            TODO
+        </p>
+
+        <table>
+            <tbody>
+                <tr>
+                    <td class="row_label">
+                        <label for="z_score_calc_mean">
+                            Mean (<code>&mu;</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="z_score_calc_mean"
+                               size="8"
+                               step = "1.0"
+                               value="0.0"
+                               _="on keyup or input send z_score_update to #z_score_calc_wrapper" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="row_label">
+                        <label for="z_score_calc_stdev">
+                            Standard Deviation (<code>&sigma;</code> or <code>s</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="z_score_calc_stdev"
+                               size="8"
+                               step = "0.1"
+                               value="1.0"
+                               _="on keyup or input send z_score_update to #z_score_calc_wrapper" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="row_label">
+                        <label for="z_score_calc_n">
+                            Sample Size (<code>n</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="z_score_calc_n"
+                               size="8"
+                               step="1"
+                               value="1"
+                               min="1"
+                               _="on keyup or input send z_score_update to #z_score_calc_wrapper" />
+                    </td>
+                    <td>
+                        (Set <code>n</code> to 1 if unsure)
+                    </td>
+                </tr>
+                <tr>
+                    <td class="row_label">
+                        <label for="z_score_calc_x">
+                            Value (<code>x</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="z_score_calc_x"
+                               size="8"
+                               step = "1.0"
+                               value="0.0"
+                               _="on keyup or input send z_score_update to #z_score_calc_wrapper" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="row_label">
+                        <label for="z_score_output">
+                            Z-Score:
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="z_score_output"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+            <!-- Binomial normal approximation probability -->
+<script type="text/hyperscript">
+    behavior BinomProb
+    on binom_prob_update queue first
+        set n to the value of #binom_prob_calc_n
+        set p to the value of #binom_prob_calc_p
+        set gt to the value of #binom_prob_calc_gt
+        set lt to the value of #binom_prob_calc_lt
+
+        set the value of #binom_prob_output to ""
+        set the value of #binom_prob_out_mean to ""
+        set the value of #binom_prob_out_stdev to ""
+
+        if has_val(n) and has_val(p)
+            set n to Math.max(1, n as Int)
+            set p to Math.max(0.0, Math.min(1.0, p as Float))
+
+            if has_val(gt)
+                set gt to Math.max(0, gt as Int)
+            end
+            if has_val(lt)
+                set lt to Math.max(1, lt as Int)
+            end
+
+            set output to binom_cdf_gt_lt(n, p, gt, lt)
+            if output exists
+                set the value of #binom_prob_output to output.toFixed(6)
+            end
+            set the value of #binom_prob_out_mean to (n * p).toFixed(6)
+            set the value of #binom_prob_out_stdev to Math.sqrt(n * p * (1.0 - p)).toFixed(6)
+        end
+    end
+end
+
+</script>
+<div id="binom_prob_calc">
+    <h3>Binomial Distribution Normal P-Value</h3>
+    <div class="wrapper" id="binom_prob_calc_wrapper" _="install BinomProb">
+        <p>
+            TODO
+        </p>
+
+        <table>
+            <tbody>
+                <tr>
+                    <td class="row_label">
+                        <label for="binom_prob_calc_n">
+                            Sample Size (<code>n</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="binom_prob_calc_n"
+                               size="8"
+                               step="1"
+                               value="1"
+                               min="1"
+                               _="on keyup or input send binom_prob_update to #binom_prob_calc_wrapper" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="row_label">
+                        <label for="binom_prob_calc_p">
+                            <code>p</code>:
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="binom_prob_calc_p"
+                               size="8"
+                               step="0.05"
+                               min="0.0"
+                               max="1.0"
+                               _="on keyup or input send binom_prob_update to #binom_prob_calc_wrapper" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="row_label">
+                        <label for="binom_prob_calc_gt">
+                            x &gt;
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="binom_prob_calc_gt"
+                               size="8"
+                               step="1"
+                               min="0"
+                               _="on keyup or input send binom_prob_update to #binom_prob_calc_wrapper" />
+                    </td>
+                    <td>(<code>x &gt;</code> may be blank)</td>
+                </tr>
+                <tr>
+                    <td class="row_label">
+                        <label for="binom_prob_calc_lt">
+                            x &lt;
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="binom_prob_calc_lt"
+                               size="8"
+                               step="1"
+                               min="1"
+                               _="on keyup or input send binom_prob_update to #binom_prob_calc_wrapper" />
+                    </td>
+                    <td>(<code>x &lt;</code> may be blank)</td>
+                </tr>
+                <tr>
+                    <td class="row_label">
+                        <label for="binom_prob_output">
+                            Probability:
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="binom_prob_output"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="row_label">
+                        <label for="binom_prob_out_mean">
+                            Mean (<code>&mu;</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="binom_prob_out_mean"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="row_label">
+                        <label for="binom_prob_out_stdev">
+                            Standard deviation (<code>&sigma;</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="binom_prob_out_stdev"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+            <!-- Normal probability -->
+<script type="text/hyperscript">
+    behavior InvProb
+    on inv_prob_update queue first
+        set dist to the value of #inv_prob_calc_type
+        set mean to the value of #inv_prob_calc_mean
+        set stdev to the value of #inv_prob_calc_stdev
+        set n to the value of #inv_prob_calc_n
+        set p to the value of #inv_prob_calc_p
+
+        set the value of #inv_prob_lt_z to ""
+        set the value of #inv_prob_gt_z to ""
+        set the value of #inv_prob_btwn1_z to ""
+        set the value of #inv_prob_btwn2_z to ""
+        set the value of #inv_prob_out1_z to ""
+        set the value of #inv_prob_out2_z to ""
+
+        set the value of #inv_prob_lt to ""
+        set the value of #inv_prob_gt to ""
+        set the value of #inv_prob_btwn1 to ""
+        set the value of #inv_prob_btwn2 to ""
+        set the value of #inv_prob_out1 to ""
+        set the value of #inv_prob_out2 to ""
+
+        if has_val(dist) and has_val(mean) and has_val(stdev) and has_val(n) and has_val(p)
+            set dist to Math.max(1, Math.min(2, dist as Int))
+            set mean to mean as Float
+            set n to Math.max(1, n as Int)
+            set stdev to stdev as Float
+            set stdev_n to stdev / Math.sqrt(n)
+            set p to Math.max(0.0, Math.min(1.0, p as Float))
+
+            set z_lt to inv_norm_cdf_fn(0.0, 1.0, p)
+            set z_gt to -z_lt
+            set lt to x_from_z(mean, stdev_n, z_lt)
+            set gt to x_from_z(mean, stdev_n, z_gt)
+
+            set the value of #inv_prob_lt_z to z_lt.toFixed(6)
+            set the value of #inv_prob_gt_z to z_gt.toFixed(6)
+            set the value of #inv_prob_lt to lt.toFixed(6)
+            set the value of #inv_prob_gt to gt.toFixed(6)
+
+            set z_btwn1 to inv_norm_cdf_fn(0.0, 1.0, (1.0 - p) / 2.0)
+            set z_btwn2 to -z_btwn1
+            set btwn1 to x_from_z(mean, stdev_n, z_btwn1)
+            set btwn2 to x_from_z(mean, stdev_n, z_btwn2)
+
+            set the value of #inv_prob_btwn1_z to z_btwn1.toFixed(6)
+            set the value of #inv_prob_btwn2_z to z_btwn2.toFixed(6)
+            set the value of #inv_prob_btwn1 to btwn1.toFixed(6)
+            set the value of #inv_prob_btwn2 to btwn2.toFixed(6)
+
+            set z_out1 to inv_norm_cdf_fn(0.0, 1.0, p / 2.0)
+            set z_out2 to -z_out1
+            set out1 to x_from_z(mean, stdev_n, z_out1)
+            set out2 to x_from_z(mean, stdev_n, z_out2)
+
+            set the value of #inv_prob_out1_z to z_out1.toFixed(6)
+            set the value of #inv_prob_out2_z to z_out2.toFixed(6)
+            set the value of #inv_prob_out1 to out1.toFixed(6)
+            set the value of #inv_prob_out2 to out2.toFixed(6)
+        end
+    end
+end
+
+</script>
+<div id="inv_prob_calc">
+    <h3>Inverse Normal Distribution</h3>
+    <div class="wrapper" id="inv_prob_calc_wrapper" _="install InvProb">
+        <p>
+            TODO
+        </p>
+
+        <table>
+            <tbody>
+                <tr>
+                    <td class="row_label">
+                        <label for="inv_prob_calc_type">
+                            Distribution:
+                        </label>
+                    </td>
+                    <td>
+                        <select id="inv_prob_calc_type"
+                                _="on change send inv_prob_update to #inv_prob_calc_wrapper">
+                            <option value="1" selected>Normal (Gaussian) Distribution</option>
+                            <!-- <option value="2">Student T-Distribution</option> -->
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="row_label">
+                        <label for="inv_prob_calc_mean">
+                            Mean (<code>&mu;</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="inv_prob_calc_mean"
+                               size="8"
+                               step="1.0"
+                               value="0.0"
+                               _="on keyup or input send inv_prob_update to #inv_prob_calc_wrapper" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="row_label">
+                        <label for="inv_prob_calc_stdev">
+                            Standard Deviation (<code>&sigma;</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="inv_prob_calc_stdev"
+                               size="8"
+                               step="0.1"
+                               value="1.0"
+                               _="on keyup or input send inv_prob_update to #inv_prob_calc_wrapper" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="row_label">
+                        <label for="inv_prob_calc_n">
+                            Sample Size (<code>n</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="inv_prob_calc_n"
+                               size="8"
+                               step="1"
+                               value="1"
+                               min="1"
+                               _="on keyup or input send inv_prob_update to #inv_prob_calc_wrapper" />
+                    </td>
+                    <td>
+                        (Set <code>n</code> to 1 if unsure)
+                    </td>
+                </tr>
+                <tr>
+                    <td class="row_label">
+                        <label for="inv_prob_calc_p">
+                            Proportion (<code>p</code>):
+                        </label>
+                    </td>
+                    <td>
+                        <input type="number"
+                               id="inv_prob_calc_p"
+                               size="8"
+                               step="0.05"
+                               min="0.0"
+                               max="1.0"
+                               _="on keyup or input send inv_prob_update to #inv_prob_calc_wrapper" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="row_label">
+                        <label for="inv_prob_lt_z">
+                            Z<sub>x&lt;</sub>
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="inv_prob_lt_z"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="row_label">
+                        <label for="inv_prob_gt_z">
+                            Z<sub>x&gt;</sub>
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="inv_prob_gt_z"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="row_label">
+                        <label for="inv_prob_btwn1_z">
+                            Z<sub>x</sub> between:
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="inv_prob_btwn1_z"
+                               size="10"
+                               readonly />
+                        <br />
+                        <input type="text"
+                               id="inv_prob_btwn2_z"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="row_label">
+                        <label for="inv_prob_out1_z">
+                            Z<sub>x</sub> outside:
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="inv_prob_out1_z"
+                               size="10"
+                               readonly />
+                        <br />
+                        <input type="text"
+                                id="inv_prob_out2_z"
+                                size="10"
+                                readonly />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="row_label">
+                        <label for="inv_prob_lt">
+                            x &lt;
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="inv_prob_lt"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="row_label">
+                        <label for="inv_prob_gt">
+                            x &gt;
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="inv_prob_gt"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="row_label">
+                        <label for="inv_prob_btwn1">
+                            x between:
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="inv_prob_btwn1"
+                               size="10"
+                               readonly />
+                        <br />
+                        <input type="text"
+                               id="inv_prob_btwn2"
+                               size="10"
+                               readonly />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="row_label">
+                        <label for="inv_prob_out1">
+                            x outside:
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text"
+                               id="inv_prob_out1"
+                               size="10"
+                               readonly />
+                        <br />
+                        <input type="text"
+                                id="inv_prob_out2"
+                                size="10"
+                                readonly />
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
             <!-- Normal probability -->
 <script type="text/hyperscript">
     behavior NormProb
@@ -68,13 +617,13 @@ end
             values, assuming the population is normally distributed.
         </p>
         <p>
-            If a sample size is provided, the standard deviation is divided by 
+            If a sample size is provided, the standard deviation is divided by
             the square root of the sample size to calculate the probability of a
             random sample of the given sample size having a mean of the values
             below/above/between/outside what is specified in the
             <code>x &gt;</code> and <code>x &lt;</code> fields, assuming that
             the population is normally distributed or the sample size
-            <code>n</code> &geq; 30, and the population standard deviation is 
+            <code>n</code> &geq; 30, and the population standard deviation is
             assumed to be what is provided. If the population standard deviation
             is unknown or <code>n</code> &lt; 30, you should use the Student
             T-Distribution.
@@ -155,7 +704,7 @@ end
                                _="on keyup or input send norm_prob_update to #norm_prob_calc_wrapper" />
                     </td>
                     <td>
-                        (Set to 1 if unsure)
+                        (Set <code>n</code> to 1 if unsure)
                     </td>
                 </tr>
                 <tr>
@@ -171,7 +720,7 @@ end
                                step="0.5"
                                _="on keyup or input send norm_prob_update to #norm_prob_calc_wrapper" />
                     </td>
-                    <td>(May be blank)</td>
+                    <td>(<code>x &gt;</code> be blank)</td>
                 </tr>
                 <tr>
                     <td class="row_label">
@@ -186,7 +735,7 @@ end
                                step="0.5"
                                _="on keyup or input send norm_prob_update to #norm_prob_calc_wrapper" />
                     </td>
-                    <td>(May be blank)</td>
+                    <td>(<code>x &lt;</code> be blank)</td>
                 </tr>
                 <tr>
                     <td class="row_label">
@@ -231,6 +780,7 @@ end
         </table>
     </div>
 </div>
+
         </div>
 
         <footer>
@@ -244,112 +794,113 @@ end
 
         <!-- Helpers -->
         <script type="text/hyperscript">
-    def has_val(input)
-        return input exists and input is not empty
-    end
+            def has_val(input)
+    return input exists and input is not empty
+end
 
-    def z_score_fn(mean, stdev, x)
-        return (x as Float - mean as Float) / stdev as Float
-    end
+def z_score_fn(mean, stdev, x)
+    return (x as Float - mean as Float) / stdev as Float
+end
 
-    def t_score_fn(mean, stdev, n, x)
-        return (x as Float - mean as Float) / (stdev as Float / Math.sqrt(n))
-    end
+def t_score_fn(mean, stdev, n, x)
+    return (x as Float - mean as Float) / (stdev as Float / Math.sqrt(n))
+end
 
-    def x_from_z(mean, stdev, z)
-        -- z=(x-mean)/stdev
-        -- z*stdev=(x-mean)
-        -- z*stdev+mean=x
-        return (mean as Float + (z as Float * stdev as Float))
-    end
+def x_from_z(mean, stdev, z)
+    -- z=(x-mean)/stdev
+    -- z*stdev=(x-mean)
+    -- z*stdev+mean=x
+    return (mean as Float + (z as Float * stdev as Float))
+end
 
-    def round(value, decimal_places)
-        set local factor to Math.pow(10, decimal_places)
-        return Math.round(value * factor) / factor
-    end
+def round(value, decimal_places)
+    set local factor to Math.pow(10, decimal_places)
+    return Math.round(value * factor) / factor
+end
 
-    def norm_prob_cdf_fn(mean, stdev, x)
-        return jStat.normal.cdf(x, mean, stdev)
-    end
+def norm_prob_cdf_fn(mean, stdev, x)
+    return jStat.normal.cdf(x, mean, stdev)
+end
 
-    def norm_prob_cdf_gt(mean, stdev, x)
-        return 1.0 - jStat.normal.cdf(x, mean, stdev)
-    end
+def norm_prob_cdf_gt(mean, stdev, x)
+    return 1.0 - jStat.normal.cdf(x, mean, stdev)
+end
 
-    def norm_prob_cdf_btwn(mean, stdev, x1, x2)
-        set min to Math.min(x1, x2)
-        set max to Math.max(x1, x2)
-        return norm_prob_cdf_fn(mean, stdev, max) 
-                - norm_prob_cdf_fn(mean, stdev, min)
-    end
+def norm_prob_cdf_btwn(mean, stdev, x1, x2)
+    set min to Math.min(x1, x2)
+    set max to Math.max(x1, x2)
+    return norm_prob_cdf_fn(mean, stdev, max)
+            - norm_prob_cdf_fn(mean, stdev, min)
+end
 
-    def norm_prob_cdf_outside(mean, stdev, x1, x2)
-        return 1.0 - norm_prob_cdf_btwn(mean, stdev, x1, x2)
-    end
+def norm_prob_cdf_outside(mean, stdev, x1, x2)
+    return 1.0 - norm_prob_cdf_btwn(mean, stdev, x1, x2)
+end
 
-    -- Either gt or lt may be undefined/null/"", this function can be 
-    -- considered a general probability area calculator.
-    -- If gt is less than lt, then we find P(gt<x<lt), which is between the two 
-    -- values. If lt is less than t, we find the tail probabilities because 
-    -- we find P(lt<x<gt), or 1.0-P(gt<x<lt), the inverse of the inner 
-    -- probability between the two values.
-    def norm_prob_cdf_gt_lt(mean, stdev, gt, lt)
-        if has_val(lt) and has_val(gt)
-            if gt <= lt
-                -- If gt is less than lt, we want inner probability.
-                return norm_prob_cdf_btwn(mean, stdev, gt, lt)
-            else
-                return norm_prob_cdf_outside(mean, stdev, gt, lt)
-            end
-        else if has_val(lt)
-            return norm_prob_cdf_fn(mean, stdev, lt)
-        else if has_val(gt)
-            return norm_prob_cdf_gt(mean, stdev, gt)
+-- Either gt or lt may be undefined/null/"", this function can be
+-- considered a general probability area calculator.
+-- If gt is less than lt, then we find P(gt<x<lt), which is between the two
+-- values. If lt is less than t, we find the tail probabilities because
+-- we find P(lt<x<gt), or 1.0-P(gt<x<lt), the inverse of the inner
+-- probability between the two values.
+def norm_prob_cdf_gt_lt(mean, stdev, gt, lt)
+    if has_val(lt) and has_val(gt)
+        if gt <= lt
+            -- If gt is less than lt, we want inner probability.
+            return norm_prob_cdf_btwn(mean, stdev, gt, lt)
+        else
+            return norm_prob_cdf_outside(mean, stdev, gt, lt)
         end
+    else if has_val(lt)
+        return norm_prob_cdf_fn(mean, stdev, lt)
+    else if has_val(gt)
+        return norm_prob_cdf_gt(mean, stdev, gt)
     end
+end
 
-    def inv_norm_cdf_fn(mean, stdev, p)
-        return jStat.normal.inv(p, mean, stdev)
-    end
+def inv_norm_cdf_fn(mean, stdev, p)
+    return jStat.normal.inv(p, mean, stdev)
+end
 
-    def inv_t_cdf_fn(n, p)
-        return jStat.studentt.inv(p, n - 1)
-    end
+def inv_t_cdf_fn(n, p)
+    return jStat.studentt.inv(p, n - 1)
+end
 
-    def t_prob_cdf_fn(mean, stdev, n, x)
-        return jStat.studentt.cdf(t_score_fn(mean, stdev, n, x), n - 1)
-    end
+def binom_cdf_fn(n, p, x)
+    return jStat.binomial.cdf(x, n, p)
+end
 
-    def t_prob_cdf_gt(mean, stdev, n, x)
-        return 1.0 - jStat.studentt.cdf(t_score_fn(mean, stdev, n, x), n - 1)
-    end
+def binom_cdf_gt(n, p, x)
+    return 1.0 - binom_cdf_fn(n, p, x)
+end
 
-    def t_prob_cdf_btwn(mean, stdev, n, x1, x2)
-        set min to Math.min(x1, x2)
-        set max to Math.max(x1, x2)
-        return t_prob_cdf_fn(mean, stdev, n, max) 
-                - t_prob_cdf_fn(mean, stdev, n, min)
-    end
+def binom_cdf_btwn(n, p, x1, x2)
+    set min to Math.min(x1, x2)
+    set max to Math.max(x1, x2)
+    return binom_cdf_fn(n, p, max)
+            - binom_cdf_fn(n, p, min)
+end
 
-    def t_prob_cdf_outside(mean, stdev, n, x1, x2)
-        return 1.0 - t_prob_cdf_btwn(mean, stdev, n, x1, x2)
-    end
+def binom_cdf_outside(n, p, x1, x2)
+    return 1.0 - binom_cdf_btwn(n, p, x1, x2)
+end
 
-    def t_prob_cdf_gt_lt(mean, stdev, gt, lt)
-        if has_val(lt) and has_val(gt)
-            if gt <= lt
-                -- If gt is less than lt, we want inner probability.
-                return t_prob_cdf_btwn(mean, stdev, gt, lt)
-            else
-                return t_prob_cdf_outside(mean, stdev, gt, lt)
-            end
-        else if has_val(lt)
-            return t_prob_cdf_fn(mean, stdev, lt)
-        else if has_val(gt)
-            return t_prob_cdf_gt(mean, stdev, gt)
+def binom_cdf_gt_lt(n, p, gt, lt)
+    if has_val(lt) and has_val(gt)
+        if gt <= lt
+            -- If gt is less than lt, we want inner probability.
+            return binom_cdf_btwn(n, p, gt, lt)
+        else
+            return binom_cdf_outside(n, p, gt, lt)
         end
+    else if has_val(lt)
+        return binom_cdf_fn(n, p, lt)
+    else if has_val(gt)
+        return binom_cdf_gt(n, p, gt)
     end
-</script>
+end
+
+        </script>
 
         <!-- Stats helpers -->
         <script src="./jstat_1.9.6.min.js"></script>
